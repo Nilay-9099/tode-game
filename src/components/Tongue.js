@@ -203,11 +203,20 @@ export class TongueSystem {
         this.state = 'retracting';
 
         if (this.hitType === 'enemy' && this.hitTarget) {
+          // If crow is diving, cancel dive and pull it down
+          if (this.hitTarget.config && this.hitTarget.config.id === 'crow') {
+            this.hitTarget.isDiving = false;
+            this.hitTarget.diveTimer = 1.2;
+            this.hitTarget.group.position.z = 6;
+          }
           this.hitTarget.hp -= 2;
           sounds.playHurt();
         } else if (this.hitType === 'boss_fuel' && this.hitTarget) {
+          // Weak spot snatched on Lawn Mower King!
           this.hitTarget.bossStunTimer = 3.0;
           this.hitTarget.bossIsCharging = false;
+          this.hitTarget.bossIsTelegraphing = false;
+          this.hitTarget.hp -= 3.0; // Bonus weak spot damage
           sounds.playHurt();
         }
       }

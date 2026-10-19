@@ -30,6 +30,7 @@ import { saveManager } from './core/Save.js';
 import { initFirebase } from './net/firebase.js';
 import { FLAVOR_BUGS, ENEMY_CONFIGS } from './constants.js';
 import { perkManager } from './components/Perks.js';
+import wavesData from './data/waves.json';
 
 async function init() {
   // 1. Scene & Lighting Setup
@@ -96,6 +97,8 @@ async function init() {
   let wave = 0; // Wave 0 = Safe Tutorial
   let waveKills = 0;
   let waveTarget = 1;
+  let currentWaveQueue = [];
+  let isEndlessMode = false;
   let tutorialStep = 1;
   let tutorialDummy = createTutorialScarecrow(scene);
   const clock = new THREE.Clock();
@@ -146,6 +149,12 @@ async function init() {
 
   eventBus.on('fusion:created', (fusion) => {
     floatingText.spawn(`✨ ${fusion.name}!`, player.group.position.x, player.group.position.y, 18, 'special');
+    const isNew = saveManager.discoverFusion(fusion.id);
+    if (isNew) {
+      sounds.playDiscovery();
+      ui.showDiscoveryToast(fusion.name);
+      ui.renderCodex();
+    }
   });
 
   eventBus.on('tadpole:saved', (tadpole) => {
@@ -165,13 +174,84 @@ async function init() {
   function startNextWave() {
     wave++;
     waveKills = 0;
-    waveTarget = 8 + wave * 4;
     enemyManager.wave = wave;
 
-    if (ui.waveBadge) ui.waveBadge.textContent = `WAVE ${wave}`;
-    const phaseConfig = atmosphere.setPhaseForWave(wave);
-    bugManager.setPhase(atmosphere.currentPhaseKey);
-    enemyManager.setPhase(atmosphere.currentPhaseKey);
+    const wConfig = wavesData.waves.find((w) => w.wave === wave);
+    currentWaveQueue = [];
+
+    if (wConfig && !isEndlessMode) {
+      waveTarget = wConfig.targetKills || 10;
+      enemyManager.spawnInterval = wConfig.spawnInterval || 2.2;
+
+      // Populate currentWaveQueue with exact enemy quotas from waves.json
+      if (wConfig.enemies && wConfig.enemies.length > 0) {
+        wConfig.enemies.forEach((entry) => {
+          let cfg = null;
+          if (entry.type === 'gnome') cfg = ENEMY_CONFIGS.GNOME;
+          else if (entry.type === 'armored_beetle' || entry.type === 'beetle') cfg = ENEMY_CONFIGS.ARMORED_BEETLE;
+          else if (entry.type === 'wasp') cfg = ENEMY_CONFIGS.WASP;
+          else if (entry.type === 'crow') cfg = ENEMY_CONFIGS.CROW;
+          else cfg = ENEMY_CONFIGS.GNOME;
+
+          for (let c = 0; c < entry.count; c++) {
+            currentWaveQueue.push(cfg);
+          }
+        });
+
+        // Shuffle queue
+        for (let i = currentWaveQueue.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [currentWaveQueue[i], currentWaveQueue[j]] = [currentWaveQueue[j], currentWaveQueue[i]];
+        }
+      }
+
+      // Atmosphere Phase
+      const phaseConfig = atmosphere.setPhaseForWave(wave, wConfig.phase);
+      bugManager.setPhase(atmosphere.currentPhaseKey);
+      enemyManager.setPhase(atmosphere.currentPhaseKey);
+
+      // Boss Spawn
+      if (wConfig.boss) {
+        enemyManager.spawnBoss(wConfig.bossDifficulty || 'normal');
+        if (ui.bossBarContainer) ui.bossBarContainer.style.display = 'block';
+        if (ui.bossName) {
+          ui.bossName.textContent = wConfig.bossDifficulty === 'hard' ? '👑 LAWN MOWER KING (APEX)' : '👑 LAWN MOWER KING';
+        }
+      } else {
+        if (ui.bossBarContainer) ui.bossBarContainer.style.display = 'none';
+      }
+
+      ui.showPhaseBanner(phaseConfig.name, wConfig.notes || phaseConfig.banner);
+      if (ui.waveBadge) ui.waveBadge.textContent = `WAVE ${wave}`;
+    } else {
+      // Endless Mode (Wave 11+)
+      isEndlessMode = true;
+      waveTarget = 14 + (wave - 10) * 3;
+      enemyManager.spawnInterval = Math.max(1.1, 1.8 - (wave - 10) * 0.04);
+
+      const count = waveTarget;
+      const types = [ENEMY_CONFIGS.GNOME, ENEMY_CONFIGS.ARMORED_BEETLE, ENEMY_CONFIGS.WASP, ENEMY_CONFIGS.CROW];
+      for (let i = 0; i < count; i++) {
+        currentWaveQueue.push(types[Math.floor(Math.random() * types.length)]);
+      }
+
+      if (wave % 5 === 0) {
+        enemyManager.spawnBoss('hard');
+        if (ui.bossBarContainer) ui.bossBarContainer.style.display = 'block';
+        if (ui.bossName) ui.bossName.textContent = `👑 LAWN MOWER KING (TIER ${Math.floor(wave / 5)})`;
+      } else {
+        if (ui.bossBarContainer) ui.bossBarContainer.style.display = 'none';
+      }
+
+      const cyclePhases = ['MORNING', 'NOON', 'DUSK', 'NIGHT', 'BOSS_ARENA'];
+      const pKey = cyclePhases[wave % cyclePhases.length];
+      const phaseConfig = atmosphere.setPhaseForWave(wave, pKey);
+      bugManager.setPhase(atmosphere.currentPhaseKey);
+      enemyManager.setPhase(atmosphere.currentPhaseKey);
+
+      ui.showPhaseBanner('🌊 ENDLESS INVASION', `Wave ${wave}: Defend the sacred pond at all costs!`);
+      if (ui.waveBadge) ui.waveBadge.textContent = `ENDLESS ${wave}`;
+    }
 
     sounds.playWaveClear();
     score += wave * GAME_CONSTANTS.SCORE_WAVE_CLEAR;
@@ -185,13 +265,6 @@ async function init() {
     ) {
       tadpoleManager.restoreOneLostTadpole();
       ui.updateTadpoles(tadpoleManager);
-    }
-
-    if (wave % 5 === 0) {
-      enemyManager.spawnBoss();
-      if (ui.bossBarContainer) ui.bossBarContainer.style.display = 'block';
-    } else {
-      if (ui.bossBarContainer) ui.bossBarContainer.style.display = 'none';
     }
 
     // Trigger Roguelite Perk Draft ("Bug Buffet") for waves >= 2
@@ -231,9 +304,30 @@ async function init() {
     } else if (enemy.config.id === 'boss_mower') {
       text = `+${gained} BOSS DOWN!`;
       type = 'special';
-      ui.showVictoryBanner('🏆 VICTORY! POND DEFENDED!', 'All 5 Tadpoles are safe! Entering Master Waves...');
       sounds.playWaveClear();
       particles.emitCollectSparkle(player.group.position.x, player.group.position.y, 10, 0xffd166);
+
+      // Check Wave 10 Apex Victory
+      if (wave === 10 && !isEndlessMode) {
+        gameState.setState(GAME_STATES.VICTORY);
+        ui.showWave10Victory(
+          score,
+          tadpoleManager.getSafeCount(),
+          stomach.longestStreak,
+          () => {
+            isEndlessMode = true;
+            gameState.setState(GAME_STATES.RUN, RUN_SUBSTATES.COMBAT);
+            startNextWave();
+          },
+          () => {
+            resetGame();
+          }
+        );
+        floatingText.spawn(text, enemy.group.position.x, enemy.group.position.y, 12, type);
+        return;
+      } else {
+        ui.showVictoryBanner('🏆 VICTORY! POND DEFENDED!', 'All 5 Tadpoles are safe! Entering Master Waves...');
+      }
     }
     floatingText.spawn(text, enemy.group.position.x, enemy.group.position.y, 12, type);
 
@@ -245,7 +339,11 @@ async function init() {
 
   function resetGame() {
     isGameOver = false;
+    isEndlessMode = false;
+    currentWaveQueue = [];
     ui.hideGameOver();
+    ui.hideWave10Victory();
+    ui.closeCodex();
     score = 0;
     wave = 1;
     waveKills = 0;
@@ -613,7 +711,19 @@ async function init() {
         enemyManager.spawnTimer += delta;
         if (enemyManager.spawnTimer >= enemyManager.spawnInterval) {
           enemyManager.spawnTimer = 0;
-          enemyManager.spawnRandomWaveEnemy();
+          if (currentWaveQueue.length > 0) {
+            const nextCfg = currentWaveQueue.shift();
+            const side = Math.floor(Math.random() * 4);
+            let x = 0, y = 0;
+            const edge = GAME_CONSTANTS.ARENA_HALF - 20;
+            if (side === 0) { x = -edge; y = (Math.random() - 0.5) * edge * 2; }
+            else if (side === 1) { x = edge; y = (Math.random() - 0.5) * edge * 2; }
+            else if (side === 2) { x = (Math.random() - 0.5) * edge * 2; y = -edge; }
+            else { x = (Math.random() - 0.5) * edge * 2; y = edge; }
+            enemyManager.spawn(nextCfg, x, y);
+          } else if (isEndlessMode || enemyManager.enemies.length === 0) {
+            enemyManager.spawnRandomWaveEnemy();
+          }
         }
 
         enemyManager.update(
@@ -650,6 +760,30 @@ async function init() {
           particles.emitMeteorSlam(player.group.position.x, player.group.position.y, GAME_CONSTANTS.SLAM_RADIUS);
           const fusion = stomach.consume();
           fusionSystem.elementalSlam(player, fusion, enemyManager.enemies, onEnemyKilled);
+
+          // Record Slam in Codex
+          if (fusion) {
+            let slamId = null;
+            let slamName = null;
+            if (fusion.id.includes('fire') || fusion.id === 'inferno') {
+              slamId = 'slam_fire';
+              slamName = 'Firestorm Slam';
+            } else if (fusion.id.includes('ice') || fusion.id === 'glacier') {
+              slamId = 'slam_ice';
+              slamName = 'Blizzard Slam';
+            } else if (fusion.id.includes('spark') || fusion.id.includes('electric') || fusion.id === 'chain_lightning') {
+              slamId = 'slam_lightning';
+              slamName = 'Tempest Slam';
+            }
+            if (slamId) {
+              const isNew = saveManager.discoverFusion(slamId);
+              if (isNew) {
+                sounds.playDiscovery();
+                ui.showDiscoveryToast(`✨ Discovered: ${slamName}!`);
+                ui.renderCodex();
+              }
+            }
+          }
 
           // Massive damage to all enemies in radius
           for (let i = enemyManager.enemies.length - 1; i >= 0; i--) {

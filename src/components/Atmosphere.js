@@ -55,22 +55,24 @@ export class AtmosphereManager {
     this.scene.add(this.fireflyInstanced);
   }
 
-  setPhaseForWave(wave) {
-    let phaseKey = 'MORNING';
-    if (wave === 0) {
-      phaseKey = 'MORNING';
-    } else if (wave % 5 === 0) {
-      phaseKey = 'BOSS_ARENA';
-    } else {
-      const cycle = ((wave - 1) % 4);
-      if (cycle === 0) phaseKey = 'MORNING';
-      else if (cycle === 1) phaseKey = 'NOON';
-      else if (cycle === 2) phaseKey = 'DUSK';
-      else if (cycle === 3) phaseKey = 'NIGHT';
+  setPhaseForWave(wave, explicitPhaseKey = null) {
+    let phaseKey = explicitPhaseKey;
+    if (!phaseKey) {
+      if (wave === 0) {
+        phaseKey = 'MORNING';
+      } else if (wave % 5 === 0) {
+        phaseKey = 'BOSS_ARENA';
+      } else {
+        const cycle = ((wave - 1) % 4);
+        if (cycle === 0) phaseKey = 'MORNING';
+        else if (cycle === 1) phaseKey = 'NOON';
+        else if (cycle === 2) phaseKey = 'DUSK';
+        else if (cycle === 3) phaseKey = 'NIGHT';
+      }
     }
 
     this.currentPhaseKey = phaseKey;
-    const config = DAY_PHASES[phaseKey];
+    const config = DAY_PHASES[phaseKey] || DAY_PHASES.MORNING;
 
     this.targetSky.setHex(config.skyColor);
     this.targetAmbient.setHex(config.ambientColor);

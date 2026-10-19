@@ -97,6 +97,19 @@ export class EnemyManager {
     this.bossBladeGeo.rotateX(Math.PI / 2);
     this.bossExhaustGeo = new THREE.CylinderGeometry(1.5, 1.5, 10, 6);
     this.bossFuelGeo = new THREE.BoxGeometry(7, 7, 9);
+    // Boss Red Lane Telegraph Plane
+    this.redLaneGeo = new THREE.PlaneGeometry(36, 260);
+    this.redLaneMat = new THREE.MeshBasicMaterial({
+      color: 0xff0033,
+      transparent: true,
+      opacity: 0.38,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    this.redLaneMesh = new THREE.Mesh(this.redLaneGeo, this.redLaneMat);
+    this.redLaneMesh.position.z = 0.25;
+    this.redLaneMesh.visible = false;
+    this.scene.add(this.redLaneMesh);
   }
 
   initTemplates() {
@@ -146,6 +159,7 @@ export class EnemyManager {
     bShadow.position.z = 0.22;
     beetle.add(bShadow);
     this.templates.beetle = beetle;
+    this.templates.armored_beetle = beetle;
 
     // Wasp Template
     const wasp = new THREE.Group();
@@ -195,12 +209,14 @@ export class EnemyManager {
     boss.add(bChassis);
     const bBlades = new THREE.Mesh(this.bossBladeGeo, this.bossMetalMat);
     bBlades.position.set(0, -18, 4);
+    bBlades.name = 'blades';
     boss.add(bBlades);
     const bExhaust = new THREE.Mesh(this.bossExhaustGeo, this.bossMetalMat);
     bExhaust.position.set(-8, 8, 14);
     boss.add(bExhaust);
     const bFuel = new THREE.Mesh(this.bossFuelGeo, this.bossFuelMat);
     bFuel.position.set(0, 16, 8);
+    bFuel.name = 'fuelCan';
     boss.add(bFuel);
     const bS = new THREE.Mesh(new THREE.CircleGeometry(24, 16), this.shadowMat);
     bS.position.z = 0.22;
@@ -222,6 +238,8 @@ export class EnemyManager {
     const shadowMesh = group.getObjectByName('shadow');
     const wingL = group.getObjectByName('wingL');
     const wingR = group.getObjectByName('wingR');
+    const bladesMesh = group.getObjectByName('blades');
+    const fuelMesh = group.getObjectByName('fuelCan');
     const legsGroup = group.children.find((c) => c.isGroup);
 
     const enemy = {
@@ -230,24 +248,49 @@ export class EnemyManager {
       shadowMesh,
       wingL,
       wingR,
+      bladesMesh,
+      fuelMesh,
       legsGroup,
       hp: config.hp,
-      maxHp: config.hp,
+      maxHp: config.maxHp || config.hp,
       speed: config.speed,
-      radius: config.scale * 0.75,
+      radius: config.radius || config.scale * 0.75,
       isFlipped: false,
       flipTimer: 0,
       freezeTimer: 0,
       blindTimer: 0,
       stolenTadpole: null,
-      diveTimer: config.diveBomber ? config.shadowTelegraphTime : 0,
+
+      // Beetle Charge State
+      isCurled: false,
+      curlTimer: 0,
+      chargeTimer: 2.0 + this.rng() * 2.5,
+      isCharging: false,
+      chargeDuration: 0,
+      chargeDir: new THREE.Vector2(),
+
+      // Wasp Dive State
+      waspDiveTimer: 2.5 + this.rng() * 2.0,
+      isWaspDiving: false,
+      waspDiveProgress: 0,
+
+      // Crow Dive State
+      diveTimer: config.diveBomber ? (config.shadowTelegraphTime || 1.2) : 0,
       isDiving: false,
+      diveTarget: new THREE.Vector2(),
+      circleAngle: this.rng() * Math.PI * 2,
+
+      // Boss Mower 3-Phase State
       bossPhase: 1,
       bossChargeTimer: 0,
+      bossTelegraphTimer: 0,
+      bossIsTelegraphing: false,
       bossIsCharging: false,
       bossChargeDir: new THREE.Vector2(),
       bossStunTimer: 0,
-      timeOffset: Math.random() * 10,
+      bossSummonTimer: 0,
+
+      timeOffset: this.rng() * 10,
     };
 
     if (config.id === 'boss_mower') {
@@ -286,9 +329,17 @@ export class EnemyManager {
     this.spawn(chosenConfig, x, y);
   }
 
-  spawnBoss() {
+  spawnBoss(difficulty = 'normal') {
     if (this.boss) return;
-    this.spawn(ENEMY_CONFIGS.BOSS_MOWER, 0, 260);
+    const baseConfig = ENEMY_CONFIGS.BOSS_MOWER;
+    const hp = difficulty === 'hard' ? 110.0 : 80.0;
+    const bossConfig = {
+      ...baseConfig,
+      hp,
+      maxHp: hp,
+      difficulty,
+    };
+    this.spawn(bossConfig, 0, 260);
   }
 
   onShockwave(shockX, shockY, radius, onKill, tadpoleManager) {
@@ -310,17 +361,22 @@ export class EnemyManager {
             tMgr.releaseTadpole(e.stolenTadpole);
             e.stolenTadpole = null;
           }
-          if (e === this.boss) this.boss = null;
+          if (e === this.boss) {
+            this.boss = null;
+            if (this.redLaneMesh) this.redLaneMesh.visible = false;
+          }
           this.scene.remove(e.group);
           this.enemies.splice(i, 1);
           if (onKill) onKill(e, { id: 'glacier_shatter', name: 'Glacier Shatter', scoreMultiplier: 2.0 });
           continue;
         }
 
-        // 2. Armored Beetle Flip check
+        // 2. Armored Beetle Flip check (cancels charges and turns it upside down)
         if (e.config.armored && !e.isFlipped) {
           e.isFlipped = true;
           e.flipTimer = e.config.flipDuration || 3.5;
+          e.isCurled = false;
+          e.isCharging = false;
           e.group.rotation.x = Math.PI;
           e.group.position.z = 4;
           sounds.playFlip();
@@ -345,7 +401,10 @@ export class EnemyManager {
           if (this.particles) {
             this.particles.emitEnemyExplosion(e.group.position.x, e.group.position.y, 18, e.config.colorHex);
           }
-          if (e === this.boss) this.boss = null;
+          if (e === this.boss) {
+            this.boss = null;
+            if (this.redLaneMesh) this.redLaneMesh.visible = false;
+          }
           this.scene.remove(e.group);
           this.enemies.splice(i, 1);
           if (onKill) onKill(e, { id: 'shockwave', name: 'Shockwave Stomp', scoreMultiplier: 1.0 });
@@ -373,6 +432,7 @@ export class EnemyManager {
         continue;
       }
 
+      // Flipped Beetle Behavior
       if (e.isFlipped) {
         e.flipTimer -= delta;
         if (e.legsGroup) {
@@ -382,17 +442,26 @@ export class EnemyManager {
           e.isFlipped = false;
           e.group.rotation.x = 0;
           e.group.position.z = 0;
+          e.chargeTimer = 2.0;
         }
         continue;
       }
 
+      // Blinded (Steam Cloud)
       if (e.blindTimer > 0) {
         e.blindTimer -= delta;
-        e.group.position.x += Math.sin(time * 5 + e.timeOffset) * e.speed * delta;
-        e.group.position.y += Math.cos(time * 5 + e.timeOffset) * e.speed * delta;
+        if (e.config.id === 'wasp') {
+          // Wasps lose altitude when blinded by hot steam
+          e.group.position.z = THREE.MathUtils.lerp(e.group.position.z, 2, delta * 8);
+          e.group.rotation.z += delta * 12;
+        } else {
+          e.group.position.x += Math.sin(time * 5 + e.timeOffset) * e.speed * delta;
+          e.group.position.y += Math.cos(time * 5 + e.timeOffset) * e.speed * delta;
+        }
         continue;
       }
 
+      // 1. Gnome Raider Behavior (Thief)
       if (e.config.id === 'gnome') {
         if (!e.stolenTadpole) {
           const dx = pondCenter.x - e.group.position.x;
@@ -413,8 +482,9 @@ export class EnemyManager {
           const dy = targetEdgeY - e.group.position.y;
           const dist = Math.hypot(dx, dy);
 
-          e.group.position.x += (dx / dist) * (e.speed * 1.15) * delta;
-          e.group.position.y += (dy / dist) * (e.speed * 1.15) * delta;
+          const fleeSpd = e.config.fleeSpeed || e.speed * 1.35;
+          e.group.position.x += (dx / dist) * fleeSpd * delta;
+          e.group.position.y += (dy / dist) * fleeSpd * delta;
           e.group.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
 
           // Escapes arena with stolen tadpole
@@ -429,92 +499,277 @@ export class EnemyManager {
             continue;
           }
         }
-      } else if (e.config.id === 'beetle') {
+      }
+      // 2. Armored Beetle (Curl & Charge + Frontal Immunity)
+      else if (e.config.id === 'armored_beetle' || e.config.id === 'beetle') {
         const dx = pPos.x - e.group.position.x;
         const dy = pPos.y - e.group.position.y;
         const dist = Math.hypot(dx, dy);
 
-        if (dist > 15) {
-          e.group.position.x += (dx / dist) * e.speed * delta;
-          e.group.position.y += (dy / dist) * e.speed * delta;
-          e.group.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
+        if (e.isCurled) {
+          e.curlTimer -= delta;
+          e.group.rotation.z += delta * 20; // rapid spin curl telegraph
+          if (this.particles && Math.random() < 0.4) {
+            this.particles.emitCollectSparkle(e.group.position.x, e.group.position.y, 4, 0x6c757d);
+          }
+
+          if (e.curlTimer <= 0) {
+            e.isCurled = false;
+            e.isCharging = true;
+            e.chargeDuration = 1.0;
+            e.chargeDir.set(dx, dy).normalize();
+            e.group.rotation.z = Math.atan2(e.chargeDir.y, e.chargeDir.x) - Math.PI / 2;
+            sounds.playFlip();
+          }
+        } else if (e.isCharging) {
+          e.chargeDuration -= delta;
+          const cSpd = e.config.chargeSpeed || 78;
+          e.group.position.x += e.chargeDir.x * cSpd * delta;
+          e.group.position.y += e.chargeDir.y * cSpd * delta;
+
+          if (
+            e.chargeDuration <= 0 ||
+            Math.abs(e.group.position.x) > GAME_CONSTANTS.ARENA_HALF - 25 ||
+            Math.abs(e.group.position.y) > GAME_CONSTANTS.ARENA_HALF - 25
+          ) {
+            e.isCharging = false;
+            e.chargeTimer = 3.2 + this.rng() * 2.0;
+          }
+        } else {
+          // Standard walk towards player
+          if (dist > 15) {
+            e.group.position.x += (dx / dist) * e.speed * delta;
+            e.group.position.y += (dy / dist) * e.speed * delta;
+            e.group.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
+          }
+
+          e.chargeTimer -= delta;
+          if (e.chargeTimer <= 0 && dist < 240) {
+            e.isCurled = true;
+            e.curlTimer = 0.8; // 0.8s spin curl telegraph
+            sounds.playTelegraph();
+          }
         }
-      } else if (e.config.id === 'wasp') {
+      }
+      // 3. Stinger Wasp (Sinusoidal erratic flight + Dive-Bomb)
+      else if (e.config.id === 'wasp') {
         if (e.wingL && e.wingR) {
           e.wingL.rotation.y = Math.sin(time * 35) * 0.8;
           e.wingR.rotation.y = -Math.sin(time * 35) * 0.8;
         }
+
         const dx = pPos.x - e.group.position.x;
         const dy = pPos.y - e.group.position.y;
         const dist = Math.hypot(dx, dy);
 
-        const wobbleX = Math.sin(time * 6 + e.timeOffset) * 20;
-        const wobbleY = Math.cos(time * 6 + e.timeOffset) * 20;
+        e.waspDiveTimer -= delta;
+        if (!e.isWaspDiving && e.waspDiveTimer <= 0 && dist < 220) {
+          e.isWaspDiving = true;
+          e.waspDiveProgress = 0;
+          e.waspDiveTimer = 3.5 + this.rng() * 2.0;
+        }
 
-        e.group.position.x += ((dx + wobbleX) / dist) * e.speed * delta;
-        e.group.position.y += ((dy + wobbleY) / dist) * e.speed * delta;
-        e.group.position.z = 10 + Math.sin(time * 5) * 4;
-        e.group.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
-      } else if (e.config.id === 'crow') {
+        if (e.isWaspDiving) {
+          e.waspDiveProgress += delta * 1.6;
+          const divePct = Math.min(e.waspDiveProgress, 1);
+          e.group.position.z = 16 - Math.sin(divePct * Math.PI) * 13;
+          const diveSpd = e.speed * 1.45;
+          e.group.position.x += (dx / dist) * diveSpd * delta;
+          e.group.position.y += (dy / dist) * diveSpd * delta;
+          e.group.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
+
+          if (e.waspDiveProgress >= 1) {
+            e.isWaspDiving = false;
+            e.group.position.z = 16;
+          }
+        } else {
+          const wobbleX = Math.sin(time * 6 + e.timeOffset) * 22;
+          const wobbleY = Math.cos(time * 6 + e.timeOffset) * 22;
+
+          e.group.position.x += ((dx + wobbleX) / dist) * e.speed * delta;
+          e.group.position.y += ((dy + wobbleY) / dist) * e.speed * delta;
+          e.group.position.z = 16 + Math.sin(time * 5 + e.timeOffset) * 3.5;
+          e.group.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
+        }
+      }
+      // 4. Pond Crow (Circling aerial predator + Ground shadow telegraph)
+      else if (e.config.id === 'crow') {
         if (!e.isDiving) {
+          e.group.position.z = 28;
+          e.circleAngle += delta * 0.85;
+          const targetCircleX = pPos.x + Math.cos(e.circleAngle) * 85;
+          const targetCircleY = pPos.y + Math.sin(e.circleAngle) * 85;
+          e.group.position.x += (targetCircleX - e.group.position.x) * delta * 2.2;
+          e.group.position.y += (targetCircleY - e.group.position.y) * delta * 2.2;
+
           e.diveTimer -= delta;
-          const progress = 1 - Math.max(0, e.diveTimer / e.config.shadowTelegraphTime);
+          const progress = 1 - Math.max(0, e.diveTimer / (e.config.shadowTelegraphTime || 1.2));
           if (e.shadowMesh) {
-            e.shadowMesh.scale.set(1 + progress * 2.5, 1 + progress * 2.5, 1);
+            e.shadowMesh.scale.set(1 + progress * 2.8, 1 + progress * 2.8, 1);
           }
 
           if (e.diveTimer <= 0) {
             e.isDiving = true;
             e.diveTarget = pPos.clone();
+            sounds.playTelegraph();
           }
         } else {
           const dx = e.diveTarget.x - e.group.position.x;
           const dy = e.diveTarget.y - e.group.position.y;
           const dist = Math.hypot(dx, dy);
 
-          if (dist > 15) {
-            e.group.position.x += (dx / dist) * e.speed * delta;
-            e.group.position.y += (dy / dist) * e.speed * delta;
-            e.group.position.z = THREE.MathUtils.lerp(e.group.position.z, 2, delta * 8);
+          const sSpd = e.config.swoopSpeed || 95;
+          if (dist > 18) {
+            e.group.position.x += (dx / dist) * sSpd * delta;
+            e.group.position.y += (dy / dist) * sSpd * delta;
+            e.group.position.z = THREE.MathUtils.lerp(e.group.position.z, 2, delta * 9);
+            e.group.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
           } else {
             e.isDiving = false;
-            e.diveTimer = e.config.shadowTelegraphTime;
-            e.group.position.z = 25;
+            e.diveTimer = e.config.shadowTelegraphTime || 1.2;
+            e.group.position.z = 28;
+            if (e.shadowMesh) e.shadowMesh.scale.set(1, 1, 1);
           }
         }
-      } else if (e.config.id === 'boss_mower') {
+      }
+      // 5. Lawn Mower King Boss (3 Phases, Red Lane Telegraph, Fuel Weak Spot)
+      else if (e.config.id === 'boss_mower') {
         if (e.bossStunTimer > 0) {
           e.bossStunTimer -= delta;
-          if (this.particles && Math.random() < 0.3) {
-            this.particles.emitShockwaveSparks(e.group.position.x, e.group.position.y, 25);
+          if (this.redLaneMesh) this.redLaneMesh.visible = false;
+          if (this.particles && Math.random() < 0.35) {
+            this.particles.emitShockwaveSparks(e.group.position.x, e.group.position.y + 16, 25);
           }
           continue;
         }
 
-        e.bossChargeTimer += delta;
-        if (!e.bossIsCharging && e.bossChargeTimer >= 3.0) {
-          e.bossIsCharging = true;
-          e.bossChargeTimer = 0;
-          e.bossChargeDir.set(pPos.x - e.group.position.x, pPos.y - e.group.position.y).normalize();
-          e.group.rotation.z = Math.atan2(e.bossChargeDir.y, e.bossChargeDir.x) - Math.PI / 2;
-          sounds.playBossRoar();
-        } else if (e.bossIsCharging) {
-          e.group.position.x += e.bossChargeDir.x * e.config.chargeSpeed * delta;
-          e.group.position.y += e.bossChargeDir.y * e.config.chargeSpeed * delta;
+        // Determine Boss Phase based on HP threshold
+        const hpPct = e.hp / e.maxHp;
+        let activePhase = 1;
+        if (hpPct <= 0.33) activePhase = 3;
+        else if (hpPct <= 0.66) activePhase = 2;
+        else activePhase = 1;
 
-          if (
-            Math.abs(e.group.position.x) > GAME_CONSTANTS.ARENA_HALF - 30 ||
-            Math.abs(e.group.position.y) > GAME_CONSTANTS.ARENA_HALF - 30 ||
-            e.bossChargeTimer >= 2.0
-          ) {
-            e.bossIsCharging = false;
-            e.bossChargeTimer = 0;
+        if (activePhase !== e.bossPhase) {
+          e.bossPhase = activePhase;
+          sounds.playBossRoar();
+        }
+
+        // PHASE 1: Linear Charges with Red Ground Lane Telegraph
+        if (e.bossPhase === 1) {
+          e.bossChargeTimer += delta;
+
+          if (!e.bossIsCharging && !e.bossIsTelegraphing && e.bossChargeTimer >= 2.8) {
+            e.bossIsTelegraphing = true;
+            e.bossTelegraphTimer = 0.8;
+            e.bossChargeDir.set(pPos.x - e.group.position.x, pPos.y - e.group.position.y).normalize();
+            sounds.playTelegraph();
+          }
+
+          if (e.bossIsTelegraphing) {
+            e.bossTelegraphTimer -= delta;
+            if (this.redLaneMesh) {
+              this.redLaneMesh.position.set(
+                e.group.position.x + e.bossChargeDir.x * 130,
+                e.group.position.y + e.bossChargeDir.y * 130,
+                0.25
+              );
+              this.redLaneMesh.rotation.z = Math.atan2(e.bossChargeDir.y, e.bossChargeDir.x) - Math.PI / 2;
+              this.redLaneMesh.visible = true;
+            }
+            e.group.rotation.z = Math.atan2(e.bossChargeDir.y, e.bossChargeDir.x) - Math.PI / 2;
+
+            if (e.bossTelegraphTimer <= 0) {
+              e.bossIsTelegraphing = false;
+              if (this.redLaneMesh) this.redLaneMesh.visible = false;
+              e.bossIsCharging = true;
+              e.bossChargeTimer = 0;
+              sounds.playBossRoar();
+            }
+          } else if (e.bossIsCharging) {
+            const cSpd = e.config.chargeSpeed || 92;
+            e.group.position.x += e.bossChargeDir.x * cSpd * delta;
+            e.group.position.y += e.bossChargeDir.y * cSpd * delta;
+            if (e.bladesMesh) e.bladesMesh.rotation.z += delta * 18;
+
+            if (
+              Math.abs(e.group.position.x) > GAME_CONSTANTS.ARENA_HALF - 30 ||
+              Math.abs(e.group.position.y) > GAME_CONSTANTS.ARENA_HALF - 30 ||
+              e.bossChargeTimer >= 1.8
+            ) {
+              e.bossIsCharging = false;
+              e.bossChargeTimer = 0;
+            }
+          } else {
+            // Idle tracking
+            const dx = pPos.x - e.group.position.x;
+            const dy = pPos.y - e.group.position.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist > 20) {
+              e.group.position.x += (dx / dist) * (e.speed * 0.45) * delta;
+              e.group.position.y += (dy / dist) * (e.speed * 0.45) * delta;
+              e.group.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
+            }
+          }
+        }
+        // PHASE 2: Spinning Blade Fury (Radial Hazard)
+        else if (e.bossPhase === 2) {
+          if (this.redLaneMesh) this.redLaneMesh.visible = false;
+          if (e.bladesMesh) e.bladesMesh.rotation.z += delta * 32;
+
+          const dx = pPos.x - e.group.position.x;
+          const dy = pPos.y - e.group.position.y;
+          const dist = Math.hypot(dx, dy);
+
+          e.group.position.x += (dx / dist) * (e.speed * 1.3) * delta;
+          e.group.position.y += (dy / dist) * (e.speed * 1.3) * delta;
+          e.group.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
+
+          if (this.particles && Math.random() < 0.4) {
+            this.particles.emitShockwaveSparks(e.group.position.x, e.group.position.y - 16, 20);
+          }
+
+          if (dist < 45) {
+            onPlayerHit();
+          }
+        }
+        // PHASE 3: Desperation & Summons
+        else if (e.bossPhase === 3) {
+          if (this.redLaneMesh) this.redLaneMesh.visible = false;
+          if (e.bladesMesh) e.bladesMesh.rotation.z += delta * 35;
+
+          // Exhaust fire & smoke
+          if (this.particles && Math.random() < 0.5) {
+            this.particles.emitEnemyExplosion(e.group.position.x - 8, e.group.position.y + 14, 6, 0xff5400);
+          }
+
+          // Summon gnomes
+          e.bossSummonTimer += delta;
+          if (e.bossSummonTimer >= 8.0) {
+            e.bossSummonTimer = 0;
+            this.spawn(ENEMY_CONFIGS.GNOME, e.group.position.x + 35, e.group.position.y);
+            this.spawn(ENEMY_CONFIGS.GNOME, e.group.position.x - 35, e.group.position.y);
+            sounds.playTadpoleAlarm();
+          }
+
+          const dx = pPos.x - e.group.position.x;
+          const dy = pPos.y - e.group.position.y;
+          const dist = Math.hypot(dx, dy);
+
+          const desSpd = e.speed * 1.4;
+          e.group.position.x += (dx / dist) * desSpd * delta;
+          e.group.position.y += (dy / dist) * desSpd * delta;
+          e.group.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
+
+          if (dist < 45) {
+            onPlayerHit();
           }
         }
       }
 
+      // Check contact damage with player
       const distToPlayer = Math.hypot(pPos.x - e.group.position.x, pPos.y - e.group.position.y);
-      if (distToPlayer < 24) {
+      if (distToPlayer < (e.radius + 12)) {
         onPlayerHit();
       }
 
@@ -526,7 +781,10 @@ export class EnemyManager {
           this.particles.emitEnemyExplosion(e.group.position.x, e.group.position.y, 16, e.config.colorHex);
         }
         this.scene.remove(e.group);
-        if (e === this.boss) this.boss = null;
+        if (e === this.boss) {
+          this.boss = null;
+          if (this.redLaneMesh) this.redLaneMesh.visible = false;
+        }
         this.enemies.splice(i, 1);
         if (onKill) onKill(e);
       }
@@ -534,6 +792,7 @@ export class EnemyManager {
   }
 
   clearAll() {
+    if (this.redLaneMesh) this.redLaneMesh.visible = false;
     for (const e of this.enemies) {
       this.scene.remove(e.group);
     }

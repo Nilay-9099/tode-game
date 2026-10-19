@@ -925,3 +925,296 @@ canvas.game {
   border-radius: 4px;
   font-size: 11px;
 }
+
+/* ==========================================================================
+   FUSION CODEX MODAL (Spec Section 3.8 & Codex.json)
+   ========================================================================== */
+
+.codex-btn {
+  background: rgba(112, 214, 255, 0.15) !important;
+  border-color: rgba(112, 214, 255, 0.4) !important;
+  color: #70d6ff !important;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+}
+.codex-btn:hover {
+  background: rgba(112, 214, 255, 0.3) !important;
+  border-color: #70d6ff !important;
+  transform: translateY(-1px);
+}
+
+.codex-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 7, 15, 0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.codex-box {
+  background: rgba(15, 23, 42, 0.94);
+  border: 1.5px solid rgba(112, 214, 255, 0.35);
+  border-radius: 24px;
+  padding: 28px 32px;
+  width: 860px;
+  max-width: 95vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(112, 214, 255, 0.15);
+  overflow-y: auto;
+}
+
+.codex-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 12px;
+}
+
+.codex-tag {
+  font-size: 11px;
+  font-weight: 800;
+  color: #70d6ff;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.codex-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.codex-subtitle {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 2px;
+}
+
+.codex-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.codex-close-btn:hover {
+  background: rgba(230, 57, 70, 0.3);
+  border-color: #e63946;
+  color: #e63946;
+  transform: rotate(90deg);
+}
+
+.codex-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 6px 0;
+}
+
+@media (max-width: 768px) {
+  .codex-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.codex-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.codex-card.unlocked {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.codex-card.unlocked:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.codex-card.locked {
+  opacity: 0.55;
+  filter: grayscale(0.8);
+  border-style: dashed;
+}
+
+.codex-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.codex-card-icon {
+  font-size: 32px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+}
+
+.codex-card-info {
+  flex: 1;
+}
+
+.codex-card-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.codex-card-cat {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.codex-recipe-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffd166;
+}
+
+.codex-card-desc {
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.codex-card-hint {
+  font-size: 11px;
+  font-style: italic;
+  color: rgba(255, 209, 102, 0.85);
+  line-height: 1.35;
+}
+
+.codex-footer {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+}
+
+/* ==========================================================================
+   WAVE 10 VICTORY MODAL ("Pond Saved")
+   ========================================================================== */
+
+.victory-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 7, 15, 0.88);
+  backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.victory-box {
+  background: linear-gradient(145deg, rgba(16, 37, 30, 0.95), rgba(10, 20, 28, 0.95));
+  border: 2px solid #00f5d4;
+  border-radius: 28px;
+  padding: 36px 40px;
+  width: 520px;
+  max-width: 90vw;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 20px 60px rgba(0, 245, 212, 0.3);
+}
+
+.victory-crown {
+  font-size: 64px;
+  filter: drop-shadow(0 4px 15px rgba(255, 209, 102, 0.5));
+}
+
+.victory-title {
+  font-size: 30px;
+  font-weight: 900;
+  color: #00f5d4;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 14px rgba(0, 245, 212, 0.4);
+}
+
+.victory-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+  margin-top: -4px;
+}
+
+.victory-stats {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.victory-actions {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.endless-btn {
+  flex: 1.3;
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #111;
+  background: linear-gradient(135deg, #00f5d4, #00b4d8);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 245, 212, 0.4);
+}
+.endless-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 245, 212, 0.6);
+}

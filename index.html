@@ -46,6 +46,7 @@
           <div class="wave-badge" id="waveBadge">WAVE 1</div>
           <div class="atmosphere-tag" id="atmosphereTag">☀️ Morning</div>
         </div>
+        <button id="codexBtn" class="hud-btn codex-btn" title="View Fusion Codex [C]">📖 Codex [C]</button>
         <button id="dailyBtn" class="daily-badge" title="Toggle Seeded Daily Challenge">📅 Daily</button>
         <button id="muteBtn" class="hud-btn" title="Toggle Sound">🔊</button>
       </div>
@@ -168,6 +169,44 @@
         </div>
 
         <button class="restart-btn" id="restartBtn">Play Again (SPACE)</button>
+      </div>
+    </div>
+
+    <!-- Fusion Codex Modal (Spec Section 3.8 & Codex.json) -->
+    <div class="codex-modal" id="codexModal" style="display: none;">
+      <div class="codex-box">
+        <div class="codex-header">
+          <div class="codex-title-wrap">
+            <div class="codex-tag">ENCYCLOPEDIA</div>
+            <div class="codex-title">📖 FUSION CODEX</div>
+            <div class="codex-subtitle">Discovered Flavor Fusions & Elemental Slams (<span id="codexCount">0</span>/9)</div>
+          </div>
+          <button class="codex-close-btn" id="codexCloseBtn" title="Close Codex (C / Esc)">✕</button>
+        </div>
+        <div class="codex-grid" id="codexGrid">
+          <!-- 9 cards rendered by UI.js -->
+        </div>
+        <div class="codex-footer">
+          <span>Press <kbd>C</kbd> or <kbd>Esc</kbd> to return to garden defense</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wave 10 Victory Screen ("Pond Saved") -->
+    <div class="victory-modal" id="victoryModal" style="display: none;">
+      <div class="victory-box">
+        <div class="victory-crown">🏆</div>
+        <div class="victory-title" id="victoryTitle">THE POND IS SAVED!</div>
+        <div class="victory-subtitle" id="victorySubtitle">The Lawn Mower King has been defeated! The sacred lilypad and all 5 tadpoles are safe.</div>
+        <div class="victory-stats">
+          <div class="stat-row"><span>Victory Score:</span><strong id="victoryScoreVal">0</strong></div>
+          <div class="stat-row"><span>Tadpoles Protected:</span><strong id="victoryTadpolesVal">5 / 5</strong></div>
+          <div class="stat-row"><span>Flavor Streak:</span><strong id="victoryStreakVal">0</strong></div>
+        </div>
+        <div class="victory-actions">
+          <button class="endless-btn" id="endlessBtn">🌊 Enter Endless Mode (Wave 11+)</button>
+          <button class="restart-btn" id="victoryRestartBtn">🔄 Play Again</button>
+        </div>
       </div>
     </div>
 

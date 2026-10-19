@@ -2,6 +2,8 @@
 // Connects EventBus events to the DOM HUD, Tutorial, Stomach slots, and Hall of Fame Leaderboard.
 
 import { eventBus } from '../eventBus.js';
+import codexData from '../data/codex.json';
+import { saveManager } from '../core/Save.js';
 
 export class UIManager {
   constructor() {
@@ -83,6 +85,22 @@ export class UIManager {
     this.finalStreakVal = document.getElementById('finalStreakVal');
     this.leaderboardList = document.getElementById('leaderboardList');
 
+    // Codex Modal Elements
+    this.codexBtn = document.getElementById('codexBtn');
+    this.codexModal = document.getElementById('codexModal');
+    this.codexGrid = document.getElementById('codexGrid');
+    this.codexCount = document.getElementById('codexCount');
+    this.codexCloseBtn = document.getElementById('codexCloseBtn');
+    this.isCodexOpen = false;
+
+    // Victory Modal Elements
+    this.victoryModal = document.getElementById('victoryModal');
+    this.victoryScoreVal = document.getElementById('victoryScoreVal');
+    this.victoryTadpolesVal = document.getElementById('victoryTadpolesVal');
+    this.victoryStreakVal = document.getElementById('victoryStreakVal');
+    this.endlessBtn = document.getElementById('endlessBtn');
+    this.victoryRestartBtn = document.getElementById('victoryRestartBtn');
+
     this.lastScore = -1;
     this.lastUlt = -1;
 
@@ -100,6 +118,7 @@ export class UIManager {
     eventBus.on('fusion:created', (fusion, isNew) => {
       if (isNew) {
         this.showDiscoveryToast(`✨ New Fusion Discovered: ${fusion.name}!`);
+        this.renderCodex();
       }
     });
 
@@ -118,8 +137,31 @@ export class UIManager {
         if (this.controlsHint) {
           this.controlsHint.classList.toggle('hidden', this.controlsHidden);
         }
+      } else if (e.key === 'c' || e.key === 'C') {
+        if (!this.perkDraftModal || this.perkDraftModal.style.display !== 'flex') {
+          this.toggleCodex();
+        }
+      } else if (e.key === 'Escape') {
+        if (this.isCodexOpen) {
+          this.closeCodex();
+        }
       }
     });
+
+    // 5. Codex HUD and Close buttons
+    if (this.codexBtn) {
+      this.codexBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.toggleCodex();
+      });
+    }
+
+    if (this.codexCloseBtn) {
+      this.codexCloseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.closeCodex();
+      });
+    }
   }
 
   setupControlsHintTimer() {
@@ -431,6 +473,113 @@ export class UIManager {
     if (this.perkKeyHandler) {
       window.removeEventListener('keydown', this.perkKeyHandler);
       this.perkKeyHandler = null;
+    }
+  }
+
+  // ==========================================================================
+  // FUSION CODEX (Spec Section 3.8 & Codex.json)
+  // ==========================================================================
+
+  renderCodex() {
+    if (!this.codexGrid) return;
+    const discovered = saveManager.get('discoveredCodex', []);
+    const entries = codexData.entries || [];
+    if (this.codexCount) {
+      this.codexCount.textContent = discovered.length.toString();
+    }
+    this.codexGrid.innerHTML = '';
+
+    entries.forEach((entry) => {
+      const isUnlocked = discovered.includes(entry.id);
+      const card = document.createElement('div');
+      card.className = `codex-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+      if (isUnlocked && entry.color) {
+        card.style.borderColor = entry.color;
+      }
+
+      if (isUnlocked) {
+        const recipeText = entry.recipe.join(' + ');
+        card.innerHTML = `
+          <div class="codex-card-top">
+            <div class="codex-card-icon" style="border: 1.5px solid ${entry.color || '#fff'}">${entry.icon}</div>
+            <div class="codex-card-info">
+              <div class="codex-card-cat">${entry.category}</div>
+              <div class="codex-card-name" style="color:${entry.color || '#fff'}">${entry.name}</div>
+            </div>
+          </div>
+          <div><span class="codex-recipe-badge">Recipe: ${recipeText}</span></div>
+          <div class="codex-card-desc">${entry.hint}</div>
+          <div class="codex-card-hint">“${entry.lore}”</div>
+        `;
+      } else {
+        card.innerHTML = `
+          <div class="codex-card-top">
+            <div class="codex-card-icon">🔒</div>
+            <div class="codex-card-info">
+              <div class="codex-card-cat">${entry.category}</div>
+              <div class="codex-card-name">???</div>
+            </div>
+          </div>
+          <div><span class="codex-recipe-badge">Recipe: Unknown</span></div>
+          <div class="codex-card-hint">💡 Hint: ${entry.hint}</div>
+        `;
+      }
+      this.codexGrid.appendChild(card);
+    });
+  }
+
+  openCodex() {
+    this.renderCodex();
+    if (this.codexModal) {
+      this.codexModal.style.display = 'flex';
+      this.isCodexOpen = true;
+    }
+  }
+
+  closeCodex() {
+    if (this.codexModal) {
+      this.codexModal.style.display = 'none';
+      this.isCodexOpen = false;
+    }
+  }
+
+  toggleCodex() {
+    if (this.isCodexOpen) {
+      this.closeCodex();
+    } else {
+      this.openCodex();
+    }
+  }
+
+  // ==========================================================================
+  // WAVE 10 VICTORY SCREEN ("Pond Saved")
+  // ==========================================================================
+
+  showWave10Victory(score, tadpolesCount, streak, onEndless, onRestart) {
+    if (!this.victoryModal) return;
+    if (this.victoryScoreVal) this.victoryScoreVal.textContent = Math.floor(score).toString();
+    if (this.victoryTadpolesVal) this.victoryTadpolesVal.textContent = `${tadpolesCount} / 5`;
+    if (this.victoryStreakVal) this.victoryStreakVal.textContent = streak.toString();
+
+    if (this.endlessBtn) {
+      this.endlessBtn.onclick = () => {
+        this.hideWave10Victory();
+        if (onEndless) onEndless();
+      };
+    }
+    if (this.victoryRestartBtn) {
+      this.victoryRestartBtn.onclick = () => {
+        this.hideWave10Victory();
+        if (onRestart) onRestart();
+      };
+    }
+
+    this.victoryModal.style.display = 'flex';
+  }
+
+  hideWave10Victory() {
+    if (this.victoryModal) {
+      this.victoryModal.style.display = 'none';
     }
   }
 }
