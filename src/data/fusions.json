@@ -1,0 +1,209 @@
+{
+  "ember+ember": {
+    "id": "inferno",
+    "name": "Inferno Blast",
+    "description": "High-velocity explosive fireball that leaves a scorching fire puddle on the ground for 4 seconds.",
+    "recipe": ["ember", "ember"],
+    "color": "#ff5400",
+    "colorHex": "0xff5400",
+    "icon": "🌋",
+    "projectile": {
+      "speed": 520,
+      "radius": 6.5,
+      "damage": 2.5,
+      "lifetime": 1.2
+    },
+    "onImpact": {
+      "aoeRadius": 45,
+      "hazardType": "fire_puddle",
+      "hazardDuration": 4.0,
+      "hazardDps": 1.5
+    },
+    "vfx": "fireExplosion",
+    "sfx": "spitFire",
+    "codexId": "inferno"
+  },
+  "frost+frost": {
+    "id": "glacier",
+    "name": "Glacier Chill",
+    "description": "Sub-zero ice missile that freezes enemies solid for 2.5s. Frozen targets shatter instantly for 2x score when stomped by Shockwave!",
+    "recipe": ["frost", "frost"],
+    "color": "#00f5d4",
+    "colorHex": "0x00f5d4",
+    "icon": "🧊",
+    "projectile": {
+      "speed": 500,
+      "radius": 6.0,
+      "damage": 2.0,
+      "lifetime": 1.2
+    },
+    "onImpact": {
+      "aoeRadius": 35,
+      "status": { "type": "freeze", "duration": 2.5 }
+    },
+    "vfx": "frostBurst",
+    "sfx": "spitIce",
+    "codexId": "glacier"
+  },
+  "spark+spark": {
+    "id": "chain_lightning",
+    "name": "Chain Lightning",
+    "description": "High-voltage electrical discharge that instantly leaps and arcs between up to 3 nearby enemies.",
+    "recipe": ["spark", "spark"],
+    "color": "#fee440",
+    "colorHex": "0xfee440",
+    "icon": "⚡",
+    "projectile": {
+      "speed": 620,
+      "radius": 5.0,
+      "damage": 2.2,
+      "lifetime": 1.0
+    },
+    "onImpact": {
+      "chainCount": 3,
+      "chainRadius": 60,
+      "status": { "type": "stun", "duration": 0.8 }
+    },
+    "vfx": "lightningArc",
+    "sfx": "spitSpark",
+    "codexId": "chain-lightning"
+  },
+  "ember+frost": {
+    "id": "steam_burst",
+    "name": "Steam Burst",
+    "description": "Dense thermal cloud that blinds all enemies inside for 3 seconds, making them stumble randomly.",
+    "recipe": ["ember", "frost"],
+    "color": "#b9d8ff",
+    "colorHex": "0xb9d8ff",
+    "icon": "💨",
+    "projectile": {
+      "speed": 460,
+      "radius": 7.0,
+      "damage": 1.2,
+      "lifetime": 1.0
+    },
+    "onImpact": {
+      "aoeRadius": 75,
+      "hazardType": "steam_cloud",
+      "hazardDuration": 3.5,
+      "status": { "type": "blind", "duration": 3.0 }
+    },
+    "vfx": "steamCloud",
+    "sfx": "steamHiss",
+    "codexId": "steam-burst"
+  },
+  "ember+spark": {
+    "id": "plasma_orb",
+    "name": "Plasma Orb",
+    "description": "Concentrated piercing sphere of superheated matter that burns and pierces through multiple foes.",
+    "recipe": ["ember", "spark"],
+    "color": "#ff007f",
+    "colorHex": "0xff007f",
+    "icon": "☄️",
+    "projectile": {
+      "speed": 420,
+      "radius": 8.0,
+      "damage": 3.2,
+      "piercing": true,
+      "pierceLimit": 3,
+      "lifetime": 1.4
+    },
+    "onImpact": {
+      "aoeRadius": 30,
+      "vfx": "plasmaImpact"
+    },
+    "vfx": "plasmaTrail",
+    "sfx": "spitFire",
+    "codexId": "plasma-orb"
+  },
+  "frost+spark": {
+    "id": "shatter_shot",
+    "name": "Shatter Shot",
+    "description": "Cryo-electric projectile that shatters into 5 piercing sub-projectiles upon launch in a conical spray.",
+    "recipe": ["frost", "spark"],
+    "color": "#70e000",
+    "colorHex": "0x70e000",
+    "icon": "💠",
+    "projectile": {
+      "speed": 540,
+      "radius": 5.0,
+      "damage": 1.8,
+      "splitCount": 5,
+      "splitSpreadAngle": 0.65,
+      "lifetime": 1.1
+    },
+    "onImpact": {
+      "aoeRadius": 25,
+      "status": { "type": "slow", "duration": 2.0, "factor": 0.4 }
+    },
+    "vfx": "shatterSpray",
+    "sfx": "spitSpark",
+    "codexId": "shatter-shot"
+  },
+  "crumb+any": {
+    "id": "breadcrumb_decoy",
+    "name": "Breadcrumb Decoy",
+    "description": "Launches a tasty crumb on the ground that attracts all nearby gnomes, distracting them from tadpoles.",
+    "recipe": ["crumb", "any"],
+    "color": "#faedcd",
+    "colorHex": "0xfaedcd",
+    "icon": "🥖",
+    "projectile": {
+      "speed": 400,
+      "radius": 4.5,
+      "damage": 0.5,
+      "lifetime": 1.0
+    },
+    "onImpact": {
+      "decoyDuration": 5.0,
+      "attractRadius": 120
+    },
+    "vfx": "crumbSpill",
+    "sfx": "burp",
+    "codexId": "breadcrumb-decoy"
+  },
+  "single_ember": {
+    "id": "ember_spit",
+    "name": "Ember Spit",
+    "description": "Single fire bug spit dealing light fire damage.",
+    "recipe": ["ember"],
+    "color": "#ff5400",
+    "colorHex": "0xff5400",
+    "icon": "🔥",
+    "projectile": { "speed": 480, "radius": 4.0, "damage": 1.2, "lifetime": 1.0 },
+    "codexId": "ember-spit"
+  },
+  "single_frost": {
+    "id": "frost_spit",
+    "name": "Frost Spit",
+    "description": "Single frost bug spit dealing light chilling damage.",
+    "recipe": ["frost"],
+    "color": "#00f5d4",
+    "colorHex": "0x00f5d4",
+    "icon": "❄️",
+    "projectile": { "speed": 480, "radius": 4.0, "damage": 1.0, "lifetime": 1.0 },
+    "codexId": "frost-spit"
+  },
+  "single_spark": {
+    "id": "spark_spit",
+    "name": "Spark Spit",
+    "description": "Single spark bug spit dealing rapid light electric damage.",
+    "recipe": ["spark"],
+    "color": "#fee440",
+    "colorHex": "0xfee440",
+    "icon": "⚡",
+    "projectile": { "speed": 550, "radius": 4.0, "damage": 1.1, "lifetime": 1.0 },
+    "codexId": "spark-spit"
+  },
+  "empty": {
+    "id": "plain_spit",
+    "name": "Plain Water Spit",
+    "description": "Basic low-damage moisture blob when stomach is empty.",
+    "recipe": [],
+    "color": "#8ecae6",
+    "colorHex": "0x8ecae6",
+    "icon": "💧",
+    "projectile": { "speed": 450, "radius": 3.0, "damage": 0.7, "lifetime": 0.9 },
+    "codexId": "plain-spit"
+  }
+}

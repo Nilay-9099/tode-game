@@ -1,0 +1,103 @@
+{
+  "entries": [
+    {
+      "id": "inferno",
+      "name": "Inferno Blast",
+      "category": "fusion",
+      "recipe": ["ember", "ember"],
+      "icon": "🌋",
+      "element": "fire",
+      "color": "#ff5400",
+      "hint": "Double Ember fire power creates lasting scorched earth.",
+      "lore": "The concentrated essence of twin embers burns so intensely it leaves flaming puddles on the ground."
+    },
+    {
+      "id": "glacier",
+      "name": "Glacier Chill",
+      "category": "fusion",
+      "recipe": ["frost", "frost"],
+      "icon": "🧊",
+      "element": "ice",
+      "color": "#00f5d4",
+      "hint": "Freeze foes solid, then stomp them with Shockwave!",
+      "lore": "Cryo-crystallized frost entombs enemies in solid rime. A subsequent kinetic shock shatters them into frozen dust."
+    },
+    {
+      "id": "chain_lightning",
+      "name": "Chain Lightning",
+      "category": "fusion",
+      "recipe": ["spark", "spark"],
+      "icon": "⚡",
+      "element": "electric",
+      "color": "#fee440",
+      "hint": "Twin sparks leap between multiple targets.",
+      "lore": "Superconducting discharge that cascades across the air, bridging targets in a split-second electrical web."
+    },
+    {
+      "id": "steam_burst",
+      "name": "Steam Burst",
+      "category": "fusion",
+      "recipe": ["ember", "frost"],
+      "icon": "💨",
+      "element": "steam",
+      "color": "#b9d8ff",
+      "hint": "Fire meets ice to obscure enemy vision.",
+      "lore": "Thermal equilibrium violently disrupts moisture into a blinding cloud of boiling vapor."
+    },
+    {
+      "id": "plasma_orb",
+      "name": "Plasma Orb",
+      "category": "fusion",
+      "recipe": ["ember", "spark"],
+      "icon": "☄️",
+      "element": "plasma",
+      "color": "#ff007f",
+      "hint": "Electrified fire pierces straight through lines of enemies.",
+      "lore": "Magnetically focused ball lightning superheated into ionizing fourth-state matter."
+    },
+    {
+      "id": "shatter_shot",
+      "name": "Shatter Shot",
+      "category": "fusion",
+      "recipe": ["frost", "spark"],
+      "icon": "💠",
+      "element": "shatter",
+      "color": "#70e000",
+      "hint": "Ice and lightning fracture into a 5-way spread.",
+      "lore": "Brittle frost crystals charged with static charge fracture into a razor-sharp conical spray."
+    },
+    {
+      "id": "slam_fire",
+      "name": "Firestorm Slam",
+      "category": "slam",
+      "recipe": ["ember (in belly)"],
+      "icon": "🔥",
+      "element": "fire",
+      "color": "#d90429",
+      "hint": "Leap slam while carrying Ember fire in your belly.",
+      "lore": "Tode crashes down with meteor force, sending a shock ring of liquid fire across the garden."
+    },
+    {
+      "id": "slam_ice",
+      "name": "Blizzard Slam",
+      "category": "slam",
+      "recipe": ["frost (in belly)"],
+      "icon": "❄️",
+      "element": "ice",
+      "color": "#00b4d8",
+      "hint": "Leap slam while carrying Frost ice in your belly.",
+      "lore": "Impact creates a slippery permafrost shockwave that flash-freezes all surrounding foes."
+    },
+    {
+      "id": "slam_lightning",
+      "name": "Tempest Slam",
+      "category": "slam",
+      "recipe": ["spark (in belly)"],
+      "icon": "⚡",
+      "element": "electric",
+      "color": "#ffd166",
+      "hint": "Leap slam while carrying Spark lightning in your belly.",
+      "lore": "Tode's impact summons a localized electrical storm, striking down multiple invaders from the sky."
+    }
+  ]
+}

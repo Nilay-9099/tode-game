@@ -1,0 +1,76 @@
+{
+  "gnome": {
+    "id": "gnome",
+    "name": "Gnome Raider",
+    "threat": "normal",
+    "maxHp": 1.0,
+    "speed": 42,
+    "fleeSpeed": 62,
+    "radius": 9,
+    "score": 15,
+    "behavior": "steal_tadpole",
+    "telegraph": "arm_reach_pond",
+    "description": "Sneaky garden raider that sprints to the pond to drag a tadpole off-screen."
+  },
+  "armored_beetle": {
+    "id": "armored_beetle",
+    "name": "Armored Rhinoceros Beetle",
+    "threat": "heavy",
+    "maxHp": 3.0,
+    "speed": 34,
+    "chargeSpeed": 78,
+    "radius": 14,
+    "score": 35,
+    "armored": true,
+    "flipDuration": 3.5,
+    "telegraph": "spin_curl_0.8s",
+    "description": "Heavy tank with impervious frontal carapace. Stomp Spacebar to flip onto its back!"
+  },
+  "wasp": {
+    "id": "wasp",
+    "name": "Stinger Wasp",
+    "threat": "agile",
+    "maxHp": 1.0,
+    "speed": 75,
+    "radius": 8,
+    "score": 25,
+    "flying": true,
+    "altitude": 16,
+    "behavior": "dive_bomb",
+    "telegraph": "rising_buzz",
+    "description": "Erratic aerial dive-bomber. Vulnerable to Chain Lightning and Steam Burst."
+  },
+  "crow": {
+    "id": "crow",
+    "name": "Pond Crow",
+    "threat": "fierce",
+    "maxHp": 2.5,
+    "speed": 60,
+    "swoopSpeed": 95,
+    "radius": 13,
+    "score": 45,
+    "flying": true,
+    "altitude": 28,
+    "behavior": "circle_and_dive",
+    "telegraph": "growing_ground_shadow_1.2s",
+    "description": "Circling scavenger. Watch for its growing ground shadow and snatch it mid-dive."
+  },
+  "boss_mower": {
+    "id": "boss_mower",
+    "name": "Lawn Mower King",
+    "threat": "apex",
+    "maxHp": 80.0,
+    "speed": 40,
+    "chargeSpeed": 92,
+    "radius": 24,
+    "score": 2000,
+    "boss": true,
+    "phases": [
+      { "name": "Linear Charges", "hpThreshold": 0.66, "telegraph": "red_ground_lane" },
+      { "name": "Spinning Blade Fury", "hpThreshold": 0.33, "bladeRadius": 45 },
+      { "name": "Summon & Desperation", "hpThreshold": 0.0, "summonInterval": 8.0 }
+    ],
+    "weakPoint": "fuel_can_back",
+    "description": "Terrifying garden shredder. Snatch the fuel can on its back to stun it, then slam!"
+  }
+}

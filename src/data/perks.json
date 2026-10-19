@@ -1,0 +1,101 @@
+{
+  "third_stomach": {
+    "id": "third_stomach",
+    "name": "Third Stomach",
+    "icon": "🫄",
+    "description": "Expands stomach capacity to 3 slots! Fusions always mix the 2 newest flavors.",
+    "category": "stomach",
+    "rarity": "rare",
+    "modifiers": { "maxSlots": 3 }
+  },
+  "wide_mouth": {
+    "id": "wide_mouth",
+    "name": "Wide Mouth",
+    "icon": "👄",
+    "description": "Increases tongue snatch reach by +30% for catching faraway bugs and pests.",
+    "category": "tongue",
+    "rarity": "common",
+    "modifiers": { "snatchRangeMult": 1.3 }
+  },
+  "slow_digest": {
+    "id": "slow_digest",
+    "name": "Slow Digestion",
+    "icon": "⏳",
+    "description": "Extends digest timer by +6 seconds, giving you more time to hold active fusions.",
+    "category": "stomach",
+    "rarity": "common",
+    "modifiers": { "digestTimeBonus": 6.0 }
+  },
+  "sticky_tongue": {
+    "id": "sticky_tongue",
+    "name": "Sticky Tongue",
+    "icon": "🍯",
+    "description": "Your tongue becomes super adhesive, reeling in up to 2 targets in a single whip!",
+    "category": "tongue",
+    "rarity": "rare",
+    "modifiers": { "multiSnatchLimit": 2 }
+  },
+  "echo_spit": {
+    "id": "echo_spit",
+    "name": "Echo Spit",
+    "icon": "👥",
+    "description": "Every spit fires a second duplicate projectile with 60% damage.",
+    "category": "fusion",
+    "rarity": "legendary",
+    "modifiers": { "echoSpit": true, "echoDamageMult": 0.6 }
+  },
+  "pond_blessing": {
+    "id": "pond_blessing",
+    "name": "Pond Blessing",
+    "icon": "✨",
+    "description": "The sacred waters heal. Regain 1 lost tadpole every 3 waves.",
+    "category": "objective",
+    "rarity": "rare",
+    "modifiers": { "tadpoleRegenInterval": 3 }
+  },
+  "heavy_landing": {
+    "id": "heavy_landing",
+    "name": "Heavy Landing",
+    "icon": "💥",
+    "description": "Meteor Slam energy charges 50% faster from kills and snatches.",
+    "category": "slam",
+    "rarity": "common",
+    "modifiers": { "ultGainMult": 1.5 }
+  },
+  "hot_streak": {
+    "id": "hot_streak",
+    "name": "Hot Streak",
+    "icon": "🔥",
+    "description": "Your Flavor Streak multiplier does not reset on your first missed shot.",
+    "category": "score",
+    "rarity": "common",
+    "modifiers": { "whiffForgiveness": 1 }
+  },
+  "lucky_fly": {
+    "id": "lucky_fly",
+    "name": "Lucky Dragonfly",
+    "icon": "🌟",
+    "description": "Golden Wildcard Flies spawn 3x more frequently over the lilypads.",
+    "category": "spawn",
+    "rarity": "rare",
+    "modifiers": { "goldenBugChanceMult": 3.0 }
+  },
+  "thick_skin": {
+    "id": "thick_skin",
+    "name": "Thick Skin",
+    "icon": "💚",
+    "description": "Permanently grants +1 maximum Heart and fully restores all health.",
+    "category": "defense",
+    "rarity": "common",
+    "modifiers": { "maxHpBonus": 1 }
+  },
+  "burp_boom": {
+    "id": "burp_boom",
+    "name": "Burp Boom",
+    "icon": "💨",
+    "description": "Overeating burps detonate in a shockwave that deals 2.0 damage to nearby pests.",
+    "category": "stomach",
+    "rarity": "rare",
+    "modifiers": { "burpDamage": 2.0 }
+  }
+}

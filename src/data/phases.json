@@ -1,0 +1,74 @@
+{
+  "phases": {
+    "MORNING": {
+      "key": "MORNING",
+      "name": "☀️ Morning Pond",
+      "skyColor": "#bfe3ff",
+      "sunColor": "#fff5ea",
+      "ambientColor": "#78909c",
+      "sunIntensity": 1.5,
+      "ambientIntensity": 1.35,
+      "fogDensity": 0.0007,
+      "particleType": "pollen",
+      "bugWeights": { "ember": 0.45, "frost": 0.35, "spark": 0.20 },
+      "tempo": 96,
+      "description": "Dawn breaks over the peaceful lilypads. Gentle garden breeze."
+    },
+    "NOON": {
+      "key": "NOON",
+      "name": "☀️ High Noon",
+      "skyColor": "#90e0ef",
+      "sunColor": "#ffffff",
+      "ambientColor": "#90a4ae",
+      "sunIntensity": 1.7,
+      "ambientIntensity": 1.45,
+      "fogDensity": 0.0005,
+      "particleType": "butterflies",
+      "bugWeights": { "ember": 0.35, "frost": 0.40, "spark": 0.25 },
+      "tempo": 108,
+      "description": "The sun beats down brightly. Armored beetles emerge."
+    },
+    "DUSK": {
+      "key": "DUSK",
+      "name": "🌅 Amber Dusk",
+      "skyColor": "#f77f00",
+      "sunColor": "#fcbf49",
+      "ambientColor": "#6a4c93",
+      "sunIntensity": 1.3,
+      "ambientIntensity": 1.1,
+      "fogDensity": 0.0009,
+      "particleType": "fireflies",
+      "bugWeights": { "ember": 0.30, "frost": 0.25, "spark": 0.45 },
+      "tempo": 118,
+      "description": "Long shadows stretch across the grass. Wasps swarm the perimeter."
+    },
+    "NIGHT": {
+      "key": "NIGHT",
+      "name": "🌙 Mystic Night",
+      "skyColor": "#03045e",
+      "sunColor": "#48cae4",
+      "ambientColor": "#0d1b2a",
+      "sunIntensity": 0.85,
+      "ambientIntensity": 0.75,
+      "fogDensity": 0.0012,
+      "particleType": "stars_fireflies",
+      "bugWeights": { "ember": 0.25, "frost": 0.45, "spark": 0.30 },
+      "tempo": 112,
+      "description": "Darkness cloaks the garden. Crows circle in the moonlight."
+    },
+    "BOSS_ARENA": {
+      "key": "BOSS_ARENA",
+      "name": "⚔️ Boss Arena",
+      "skyColor": "#3d0000",
+      "sunColor": "#d90429",
+      "ambientColor": "#2b0938",
+      "sunIntensity": 1.6,
+      "ambientIntensity": 1.0,
+      "fogDensity": 0.0014,
+      "particleType": "embers",
+      "bugWeights": { "ember": 0.33, "frost": 0.33, "spark": 0.34 },
+      "tempo": 136,
+      "description": "The ground shakes violently! The mechanical Lawn Mower King approaches!"
+    }
+  }
+}

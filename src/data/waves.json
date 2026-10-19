@@ -1,0 +1,124 @@
+{
+  "waves": [
+    {
+      "wave": 0,
+      "phase": "MORNING",
+      "targetKills": 1,
+      "spawnInterval": 0,
+      "isTutorial": true,
+      "enemies": [],
+      "notes": "Safe tutorial area with training dummy"
+    },
+    {
+      "wave": 1,
+      "phase": "MORNING",
+      "targetKills": 4,
+      "spawnInterval": 2.8,
+      "enemies": [{ "type": "gnome", "count": 4 }],
+      "notes": "Gentle introduction to tadpole protection"
+    },
+    {
+      "wave": 2,
+      "phase": "NOON",
+      "targetKills": 7,
+      "spawnInterval": 2.5,
+      "enemies": [
+        { "type": "gnome", "count": 6 },
+        { "type": "armored_beetle", "count": 1 }
+      ],
+      "notes": "Introduces beetle flipping via Spacebar shockwave"
+    },
+    {
+      "wave": 3,
+      "phase": "DUSK",
+      "targetKills": 11,
+      "spawnInterval": 2.2,
+      "enemies": [
+        { "type": "gnome", "count": 6 },
+        { "type": "armored_beetle", "count": 2 },
+        { "type": "wasp", "count": 3 }
+      ],
+      "notes": "Fast stinger wasps arrive; spark bugs common"
+    },
+    {
+      "wave": 4,
+      "phase": "NIGHT",
+      "targetKills": 12,
+      "spawnInterval": 2.0,
+      "enemies": [
+        { "type": "gnome", "count": 8 },
+        { "type": "crow", "count": 4 }
+      ],
+      "notes": "Night darkness; crow ground shadow telegraphs"
+    },
+    {
+      "wave": 5,
+      "phase": "BOSS_ARENA",
+      "targetKills": 5,
+      "spawnInterval": 3.0,
+      "boss": "boss_mower",
+      "enemies": [{ "type": "gnome", "count": 4 }],
+      "notes": "Wave 5 Apex Boss: Lawn Mower King"
+    },
+    {
+      "wave": 6,
+      "phase": "NOON",
+      "targetKills": 13,
+      "spawnInterval": 1.9,
+      "enemies": [
+        { "type": "gnome", "count": 10 },
+        { "type": "armored_beetle", "count": 3 }
+      ],
+      "notes": "Heavy ground battalion"
+    },
+    {
+      "wave": 7,
+      "phase": "DUSK",
+      "targetKills": 13,
+      "spawnInterval": 1.8,
+      "enemies": [
+        { "type": "gnome", "count": 6 },
+        { "type": "wasp", "count": 5 },
+        { "type": "armored_beetle", "count": 2 }
+      ],
+      "notes": "Swarm tactics"
+    },
+    {
+      "wave": 8,
+      "phase": "NIGHT",
+      "targetKills": 16,
+      "spawnInterval": 1.7,
+      "enemies": [
+        { "type": "gnome", "count": 8 },
+        { "type": "crow", "count": 6 },
+        { "type": "armored_beetle", "count": 2 }
+      ],
+      "notes": "Sky patrol danger"
+    },
+    {
+      "wave": 9,
+      "phase": "MORNING",
+      "targetKills": 16,
+      "spawnInterval": 1.5,
+      "enemies": [
+        { "type": "gnome", "count": 8, "eliteChance": 0.35 },
+        { "type": "armored_beetle", "count": 4 },
+        { "type": "wasp", "count": 4 }
+      ],
+      "notes": "Elite mixed horde"
+    },
+    {
+      "wave": 10,
+      "phase": "BOSS_ARENA",
+      "targetKills": 1,
+      "spawnInterval": 2.5,
+      "boss": "boss_mower",
+      "bossDifficulty": "hard",
+      "enemies": [
+        { "type": "gnome", "count": 6 },
+        { "type": "wasp", "count": 4 }
+      ],
+      "notes": "Climactic Final Defense; unlocks Endless Mode upon victory"
+    }
+  ]
+}

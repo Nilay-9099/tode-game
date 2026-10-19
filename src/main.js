@@ -23,6 +23,12 @@ import { UIManager } from './components/UI.js';
 import { createTutorialScarecrow } from './components/TutorialTarget.js';
 import { FloatingTextManager } from './components/FloatingText.js';
 import { createDailyRandom } from './utils/prng.js';
+import { debugHarness } from './core/Debug.js';
+import { QualityManager } from './core/Quality.js';
+import { gameState, GAME_STATES, RUN_SUBSTATES } from './core/StateMachine.js';
+import { saveManager } from './core/Save.js';
+import { initFirebase } from './net/firebase.js';
+import { FLAVOR_BUGS, ENEMY_CONFIGS } from './constants.js';
 
 async function init() {
   // 1. Scene & Lighting Setup
@@ -55,6 +61,8 @@ async function init() {
   const particles = new ParticleSystem(scene);
   const atmosphere = new AtmosphereManager(scene, ambientLight, dirLight);
   const ui = new UIManager();
+  const quality = new QualityManager(renderer);
+  initFirebase().catch(() => {});
 
   // 4. Map & Houses
   const map = createMap(renderer);
@@ -242,6 +250,41 @@ async function init() {
     ui.updateTadpoles(tadpoleManager);
 
     clock.getDelta();
+  }
+
+  // 7b. Debug Bindings for QA Harness (Spec Section 4.12)
+  if (window.__tode) {
+    window.__tode.setWave = (n) => {
+      wave = Math.max(0, parseInt(n, 10) - 1);
+      startNextWave();
+      console.log(`⏩ [Debug] Jumped to Wave ${wave}`);
+    };
+    window.__tode.giveBug = (type) => {
+      const bugKey = String(type || 'ember').toUpperCase();
+      const b = FLAVOR_BUGS[bugKey] || FLAVOR_BUGS.EMBER;
+      stomach.addBug(b);
+      console.log(`🐛 [Debug] Given bug: ${b.name}`);
+    };
+    window.__tode.spawn = (type = 'gnome', count = 1) => {
+      const cfgKey = String(type).toUpperCase();
+      const cfg = ENEMY_CONFIGS[cfgKey] || ENEMY_CONFIGS.GNOME;
+      for (let i = 0; i < count; i++) {
+        enemyManager.spawn(cfg, (Math.random() - 0.5) * 120, (Math.random() - 0.5) * 120);
+      }
+      console.log(`👾 [Debug] Spawned ${count}x ${cfg.name}`);
+    };
+    window.__tode.setPhase = (name) => {
+      atmosphere.currentPhaseKey = String(name).toUpperCase();
+      atmosphere.setPhaseForWave(wave);
+      console.log(`🌅 [Debug] Phase set to: ${name}`);
+    };
+    window.__tode.winNow = () => {
+      ui.showVictoryBanner('🏆 VICTORY (DEBUG)', 'All Tadpoles Protected!');
+      gameState.setState(GAME_STATES.VICTORY);
+    };
+    window.__tode.loseNow = () => {
+      eventBus.emit('game:over', 'Debug Force Defeat');
+    };
   }
 
   // Raycasting for Mouse Aiming
@@ -586,6 +629,8 @@ async function init() {
     // Particles & Render
     particles.update(delta);
     floatingText.update(delta);
+    quality.update();
+    debugHarness.updateMetrics(enemyManager.enemies.length + bugManager.bugs.length);
     renderer.render(scene, gameCamera.camera);
   });
 }

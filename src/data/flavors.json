@@ -1,0 +1,62 @@
+{
+  "ember": {
+    "id": "ember",
+    "name": "Ember Fly",
+    "element": "fire",
+    "colorHex": "0xff5400",
+    "colorCss": "#ff5400",
+    "glowColor": "0xff3700",
+    "shape": "circle",
+    "icon": "🔥",
+    "score": 15,
+    "description": "Volatile fire essence that burns and explodes."
+  },
+  "frost": {
+    "id": "frost",
+    "name": "Frost Beetle",
+    "element": "ice",
+    "colorHex": "0x00f5d4",
+    "colorCss": "#00f5d4",
+    "glowColor": "0x00b4d8",
+    "shape": "hexagon",
+    "icon": "❄️",
+    "score": 15,
+    "description": "Glacial cold that chills and solidifies foes."
+  },
+  "spark": {
+    "id": "spark",
+    "name": "Spark Bug",
+    "element": "electric",
+    "colorHex": "0xfee440",
+    "colorCss": "#fee440",
+    "glowColor": "0xffb703",
+    "shape": "star",
+    "icon": "⚡",
+    "score": 15,
+    "description": "Superconductive lightning that arcs between targets."
+  },
+  "golden": {
+    "id": "golden",
+    "name": "Golden Dragonfly",
+    "element": "wildcard",
+    "colorHex": "0xffd166",
+    "colorCss": "#ffd166",
+    "glowColor": "0xffb703",
+    "shape": "diamond",
+    "icon": "🌟",
+    "score": 50,
+    "description": "Rare mystical bug acting as a wildcard for any flavor."
+  },
+  "crumb": {
+    "id": "crumb",
+    "name": "Garden Crumb",
+    "element": "plain",
+    "colorHex": "0xffffff",
+    "colorCss": "#ffffff",
+    "glowColor": "0xcccccc",
+    "shape": "crumb",
+    "icon": "🥖",
+    "score": 5,
+    "description": "Stale breadcrumb used to lure and distract hungry gnomes."
+  }
+}
