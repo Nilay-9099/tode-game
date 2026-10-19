@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/tode.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tode and the Last Lilypad - Flavor Fusion Defense</title>
+  </head>
+  <body>
+    <canvas class="game"></canvas>
+
+    <!-- Top Status Bar -->
+    <header class="hud-top">
+      <div class="hud-left">
+        <!-- Hearts -->
+        <div class="hearts" title="Player Health">
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
+        </div>
+
+        <!-- Tadpole Counter (Section 3) -->
+        <div class="tadpole-counter" id="tadpoleCounter" title="Protected Tadpoles">
+          <span class="tadpole-label">Tadpoles:</span>
+          <span class="tadpole-icon active" id="tadpole0">🐟</span>
+          <span class="tadpole-icon active" id="tadpole1">🐟</span>
+          <span class="tadpole-icon active" id="tadpole2">🐟</span>
+          <span class="tadpole-icon active" id="tadpole3">🐟</span>
+          <span class="tadpole-icon active" id="tadpole4">🐟</span>
+        </div>
+
+        <div class="cooldown-badge" id="cooldownBadge">SPACE: READY</div>
+        <div class="ult-badge" id="ultBadge">
+          <div class="ult-fill" id="ultFill"></div>
+          <span id="ultText">E: SLAM (0%)</span>
+        </div>
+      </div>
+
+      <div class="hud-center">
+        <div class="score">Score: 0</div>
+        <div class="high-score">BEST: <span id="highScoreVal">0</span></div>
+      </div>
+
+      <div class="hud-right">
+        <div class="wave-info">
+          <div class="wave-badge" id="waveBadge">WAVE 1</div>
+          <div class="atmosphere-tag" id="atmosphereTag">☀️ Morning</div>
+        </div>
+        <button id="dailyBtn" class="daily-badge" title="Toggle Seeded Daily Challenge">📅 Daily</button>
+        <button id="muteBtn" class="hud-btn" title="Toggle Sound">🔊</button>
+      </div>
+    </header>
+
+    <!-- Phase Banner (Section 9) -->
+    <div class="phase-banner" id="phaseBanner">
+      <div class="banner-title" id="bannerTitle">☀️ Morning Pond</div>
+      <div class="banner-desc" id="bannerDesc">Wave 1: Gnome Raiders approaching!</div>
+    </div>
+
+    <!-- Wave 0 Tutorial Overlay (Section 11) -->
+    <div class="tutorial-prompt" id="tutorialPrompt">
+      <div class="tut-title">🎯 TUTORIAL: FLAVOR FUSION</div>
+      <div class="tut-step active" id="tutStep1">1. Snatch a glowing bug (<kbd>Q</kbd> / Click)</div>
+      <div class="tut-step" id="tutStep2">2. Snatch another to mix 2 flavors!</div>
+      <div class="tut-step" id="tutStep3">3. Spit your fusion attack (<kbd>R</kbd> / Right-click) at the scarecrow!</div>
+    </div>
+
+    <!-- Fusion Discovery Toast (Section 11) -->
+    <div class="discovery-toast" id="discoveryToast"></div>
+
+    <!-- Bottom Center: Stomach HUD (Section 9) -->
+    <div class="stomach-hud" id="stomachHud">
+      <div class="stomach-header">
+        <span class="stomach-title">STOMACH</span>
+        <span class="dip-hint">(Pond resets mix)</span>
+      </div>
+      <div class="stomach-slots">
+        <!-- Slot 0 -->
+        <div class="stomach-slot" id="stomachSlot0">
+          <svg class="digest-ring" viewBox="0 0 52 52">
+            <circle class="ring-bg" cx="26" cy="26" r="22" />
+            <circle class="ring-progress" id="ringProgress0" cx="26" cy="26" r="22" />
+          </svg>
+          <span class="slot-icon" id="slotIcon0">🦗</span>
+          <span class="slot-sec" id="slotSec0"></span>
+        </div>
+        <!-- Slot 1 -->
+        <div class="stomach-slot" id="stomachSlot1">
+          <svg class="digest-ring" viewBox="0 0 52 52">
+            <circle class="ring-bg" cx="26" cy="26" r="22" />
+            <circle class="ring-progress" id="ringProgress1" cx="26" cy="26" r="22" />
+          </svg>
+          <span class="slot-icon" id="slotIcon1">🦗</span>
+          <span class="slot-sec" id="slotSec1"></span>
+        </div>
+      </div>
+      <div class="spit-badge" id="spitBadge">
+        <span class="spit-key">R / Right-Click:</span>
+        <strong id="spitName">Mud Spit</strong>
+        <span class="streak-badge" id="streakBadge"></span>
+      </div>
+    </div>
+
+    <!-- Boss Health Bar -->
+    <div class="boss-bar-container" id="bossBarContainer">
+      <div class="boss-name" id="bossName">👑 LAWN MOWER KING</div>
+      <div class="boss-bar-track">
+        <div class="boss-bar-fill" id="bossBarFill"></div>
+      </div>
+    </div>
+
+    <!-- Floating Controls Hint Card (Bottom-Left) - Auto-fades, toggled with H -->
+    <div class="controls-hint" id="controlsHint">
+      <div class="hint-header">
+        <span class="hint-title">🐸 TODE'S CONTROLS</span>
+        <span class="hint-toggle">Toggle: <kbd>H</kbd></span>
+      </div>
+      <div class="hint-item"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Hop • <kbd>Shift</kbd>+<kbd>WASD</kbd> Turn</div>
+      <div class="hint-item">🖱️ <kbd>Mouse Move</kbd> 360° Dynamic Aiming</div>
+      <div class="hint-item"><kbd>SPACE</kbd> Shockwave Stomp (Crushes gnomes!)</div>
+      <div class="hint-item"><kbd>Q</kbd> / <kbd>Click</kbd> Tongue Snatch</div>
+      <div class="hint-item"><kbd>R</kbd> / <kbd>Right-Click</kbd> Spit Flavor Fusion</div>
+      <div class="hint-item"><kbd>E</kbd> Elemental Slam (at 100%)</div>
+      <div class="hint-tip">💡 Stand in pond to clear stomach!</div>
+    </div>
+
+    <!-- Game Over Screen (Section 9 & 10) -->
+    <div class="game-over" id="gameOverModal">
+      <div class="game-over-box">
+        <div class="game-over-title" id="gameOverTitle">GAME OVER</div>
+        <div class="game-over-reason" id="gameOverReason"></div>
+        <div class="game-over-stats">
+          <div class="stat-row"><span>Final Score:</span><strong id="finalScoreVal">0</strong></div>
+          <div class="stat-row"><span>High Score:</span><strong id="modalHighScoreVal">0</strong></div>
+          <div class="stat-row"><span>Wave Reached:</span><strong id="finalWaveVal">1</strong></div>
+          <div class="stat-row"><span>Tadpoles Saved:</span><strong id="finalTadpolesVal">5</strong></div>
+          <div class="stat-row"><span>Longest Streak:</span><strong id="finalStreakVal">0</strong></div>
+        </div>
+
+        <!-- Local Top-10 Leaderboard -->
+        <div class="leaderboard-section">
+          <div class="leaderboard-title">🏆 GARDEN HALL OF FAME</div>
+          <div class="leaderboard-list" id="leaderboardList"></div>
+        </div>
+
+        <button class="restart-btn" id="restartBtn">Play Again (SPACE)</button>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
