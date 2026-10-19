@@ -576,9 +576,58 @@ class SoundEngine {
     osc.stop(t + 0.12);
   }
 
+  // 14e. Pond Water Splash
+  playWaterSplash() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(320, t);
+    osc.frequency.exponentialRampToValueAtTime(110, t + 0.16);
+
+    gain.gain.setValueAtTime(0.3, t);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.16);
+
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(t);
+    osc.stop(t + 0.16);
+  }
+
+  // 14f. Pond Dip Stomach Refresh (Crystal water sparkle chime)
+  playPondDip() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const freqs = [659.25, 880.0, 1046.5]; // E5, A5, C6
+    freqs.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const delay = idx * 0.05;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t + delay);
+
+      gain.gain.setValueAtTime(0.25, t + delay);
+      gain.gain.exponentialRampToValueAtTime(0.005, t + delay + 0.28);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(t + delay);
+      osc.stop(t + delay + 0.28);
+    });
+  }
+
   // 15. Looping Procedural Ambient Music that shifts mood per Time-of-Day
   setPhase(phaseId) {
-    this.currentPhase = phaseId;
+    this.currentPhase = (phaseId || 'morning').toLowerCase();
   }
 
   startBGM() {
@@ -604,21 +653,40 @@ class SoundEngine {
     this.bgmInterval = setInterval(() => {
       if (this.isMuted || !this.ctx) return;
       const t = this.ctx.currentTime;
-      const chords = phaseChords[this.currentPhase] || phaseChords.morning;
-      const bass = bassNotes[this.currentPhase] || 130.81;
+      const key = (this.currentPhase || 'morning').toLowerCase();
+      const chords = phaseChords[key] || phaseChords.morning;
+      const bass = bassNotes[key] || 130.81;
 
       // Bass note
       if (this.stepIndex % 4 === 0) {
         const bassOsc = this.ctx.createOscillator();
         const bassGain = this.ctx.createGain();
-        bassOsc.type = this.currentPhase === 'boss_arena' ? 'sawtooth' : 'triangle';
+        bassOsc.type = key === 'boss_arena' ? 'sawtooth' : 'triangle';
         bassOsc.frequency.setValueAtTime(bass, t);
-        bassGain.gain.setValueAtTime(0.2, t);
+        bassGain.gain.setValueAtTime(key === 'boss_arena' ? 0.3 : 0.2, t);
         bassGain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
         bassOsc.connect(bassGain);
         bassGain.connect(this.bgmGain);
         bassOsc.start(t);
         bassOsc.stop(t + 0.45);
+      }
+
+      // Boss Fight Percussion Pulse (Kick & Noise Snare)
+      if (key === 'boss_arena') {
+        // Kick on beats 0 & 8
+        if (this.stepIndex % 8 === 0) {
+          const kickOsc = this.ctx.createOscillator();
+          const kickGain = this.ctx.createGain();
+          kickOsc.type = 'sine';
+          kickOsc.frequency.setValueAtTime(120, t);
+          kickOsc.frequency.exponentialRampToValueAtTime(30, t + 0.12);
+          kickGain.gain.setValueAtTime(0.35, t);
+          kickGain.gain.exponentialRampToValueAtTime(0.005, t + 0.12);
+          kickOsc.connect(kickGain);
+          kickGain.connect(this.bgmGain);
+          kickOsc.start(t);
+          kickOsc.stop(t + 0.12);
+        }
       }
 
       // Arpeggio melody note

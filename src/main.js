@@ -31,6 +31,7 @@ import { initFirebase } from './net/firebase.js';
 import { FLAVOR_BUGS, ENEMY_CONFIGS } from './constants.js';
 import { perkManager } from './components/Perks.js';
 import wavesData from './data/waves.json';
+import { PostFX } from './components/PostFX.js';
 
 async function init() {
   // 1. Scene & Lighting Setup
@@ -58,12 +59,13 @@ async function init() {
   // 2. Camera & Renderer
   const gameCamera = createCamera();
   const renderer = createRenderer();
+  const postFX = new PostFX(renderer, scene, gameCamera.camera);
 
   // 3. Dynamic Systems
   const particles = new ParticleSystem(scene);
   const atmosphere = new AtmosphereManager(scene, ambientLight, dirLight);
   const ui = new UIManager();
-  const quality = new QualityManager(renderer);
+  const quality = new QualityManager(renderer, postFX);
   initFirebase().catch(() => {});
 
   // 4. Map & Houses
@@ -632,6 +634,7 @@ async function init() {
   window.addEventListener('resize', () => {
     gameCamera.handleResize();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    postFX.handleResize();
   });
 
   function isPlayerDestinationBlocked(targetX, targetY) {
@@ -661,6 +664,10 @@ async function init() {
         player.group.position.y - GAME_CONSTANTS.POND_CENTER.y
       );
       if (distToPond < GAME_CONSTANTS.POND_RADIUS) {
+        if (stomach.slots.length > 0) {
+          sounds.playPondDip();
+          particles.emitCollectSparkle(player.group.position.x, player.group.position.y, 8, 0x00f5d4);
+        }
         stomach.clearPondDip();
       }
 
@@ -811,7 +818,7 @@ async function init() {
     floatingText.update(delta);
     quality.update();
     debugHarness.updateMetrics(enemyManager.enemies.length + bugManager.bugs.length);
-    renderer.render(scene, gameCamera.camera);
+    postFX.render(delta);
   });
 }
 
