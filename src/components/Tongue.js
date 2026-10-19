@@ -10,7 +10,9 @@ export class TongueSystem {
     this.scene = scene;
     this.cooldown = GAME_CONSTANTS.SNATCH_COOLDOWN;
     this.timer = 0;
-    this.range = GAME_CONSTANTS.SNATCH_RANGE;
+    this.baseRange = GAME_CONSTANTS.SNATCH_RANGE;
+    this.range = this.baseRange;
+    this.maxSnatchCount = 1;
     this.state = 'idle'; // 'idle', 'extending', 'retracting'
     this.progress = 0;
     this.extendSpeed = 6.0;

@@ -416,6 +416,18 @@ export class EnemyManager {
           e.group.position.x += (dx / dist) * (e.speed * 1.15) * delta;
           e.group.position.y += (dy / dist) * (e.speed * 1.15) * delta;
           e.group.rotation.z = Math.atan2(dy, dx) - Math.PI / 2;
+
+          // Escapes arena with stolen tadpole
+          if (
+            Math.abs(e.group.position.x) > GAME_CONSTANTS.ARENA_HALF - 25 ||
+            Math.abs(e.group.position.y) > GAME_CONSTANTS.ARENA_HALF - 25
+          ) {
+            tadpoleManager.loseTadpole(e.stolenTadpole);
+            e.stolenTadpole = null;
+            this.scene.remove(e.group);
+            this.enemies.splice(i, 1);
+            continue;
+          }
         }
       } else if (e.config.id === 'beetle') {
         const dx = pPos.x - e.group.position.x;

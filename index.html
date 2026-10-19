@@ -93,6 +93,15 @@
           <span class="slot-icon" id="slotIcon1">🦗</span>
           <span class="slot-sec" id="slotSec1"></span>
         </div>
+        <!-- Slot 2 (Unlocked with Third Stomach perk) -->
+        <div class="stomach-slot" id="stomachSlot2" style="display: none;">
+          <svg class="digest-ring" viewBox="0 0 52 52">
+            <circle class="ring-bg" cx="26" cy="26" r="22" />
+            <circle class="ring-progress" id="ringProgress2" cx="26" cy="26" r="22" />
+          </svg>
+          <span class="slot-icon" id="slotIcon2">🦗</span>
+          <span class="slot-sec" id="slotSec2"></span>
+        </div>
       </div>
       <div class="spit-badge" id="spitBadge">
         <span class="spit-key">R / Right-Click:</span>
@@ -122,6 +131,21 @@
       <div class="hint-item"><kbd>R</kbd> / <kbd>Right-Click</kbd> Spit Flavor Fusion</div>
       <div class="hint-item"><kbd>E</kbd> Elemental Slam (at 100%)</div>
       <div class="hint-tip">💡 Stand in pond to clear stomach!</div>
+    </div>
+
+    <!-- Perk Draft ("Bug Buffet") Modal (Spec Section 3.7) -->
+    <div class="perk-draft-modal" id="perkDraftModal" style="display: none;">
+      <div class="perk-draft-box">
+        <div class="perk-draft-header">
+          <div class="perk-draft-tag">WAVE COMPLETED!</div>
+          <div class="perk-draft-title">🐛 BUG BUFFET PERK DRAFT</div>
+          <div class="perk-draft-subtitle">Choose one mutation to empower Tode for the rest of your run:</div>
+        </div>
+        <div class="perk-cards" id="perkCardsContainer">
+          <!-- 3 cards rendered dynamically by UI.js -->
+        </div>
+        <div class="perk-draft-footer">Press <kbd>1</kbd>, <kbd>2</kbd>, or <kbd>3</kbd> (or click card) to pick</div>
+      </div>
     </div>
 
     <!-- Game Over Screen (Section 9 & 10) -->

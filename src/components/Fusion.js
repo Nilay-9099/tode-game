@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { GAME_CONSTANTS } from '../constants.js';
 import { eventBus } from '../eventBus.js';
 import { sounds } from './Audio.js';
+import { perkManager } from './Perks.js';
 
 export class FusionSystem {
   constructor(scene, particles) {
@@ -147,6 +148,25 @@ export class FusionSystem {
         maxLife: 1.2,
         geometry: this.sphereGeo,
       });
+    }
+
+    // Echo Spit Perk (Spec Section 3.7)
+    if (perkManager?.modifiers?.echoSpit) {
+      setTimeout(() => {
+        this.spawnProjectile({
+          fusion: { ...fusion, name: `Echo ${fusion.name}` },
+          x: startX + (Math.random() - 0.5) * 6,
+          y: startY + (Math.random() - 0.5) * 6,
+          z: startZ,
+          dir,
+          speed: 470,
+          radius: 3.5,
+          damage: (fusion.damage || 2.0) * (perkManager.modifiers.echoDamageMult || 0.6),
+          color: fusion.colorHex,
+          maxLife: 1.0,
+          geometry: this.sphereGeo,
+        });
+      }, 80);
     }
 
     eventBus.emit('spit:fired', fusion);

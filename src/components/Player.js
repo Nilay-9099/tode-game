@@ -6,6 +6,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { GAME_CONSTANTS } from '../constants.js';
 import { eventBus } from '../eventBus.js';
 import { sounds } from './Audio.js';
+import { perkManager } from './Perks.js';
 
 export async function createPlayer() {
   const group = new THREE.Group();
@@ -127,7 +128,8 @@ export async function createPlayer() {
     squashZ: GAME_CONSTANTS.PLAYER_SCALE,
 
     addUltEnergy(amount) {
-      this.ultEnergy = Math.min(GAME_CONSTANTS.SLAM_MAX_ENERGY, this.ultEnergy + amount);
+      const mult = perkManager?.modifiers?.ultGainMult || 1.0;
+      this.ultEnergy = Math.min(GAME_CONSTANTS.SLAM_MAX_ENERGY, this.ultEnergy + amount * mult);
     },
 
     getForwardVector() {

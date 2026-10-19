@@ -501,6 +501,32 @@ class SoundEngine {
     });
   }
 
+  // 14b. Perk Selected Arpeggio
+  playPerkPick() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const notes = [392.0, 523.25, 659.25, 783.99];
+    const t = this.ctx.currentTime;
+    notes.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const delay = idx * 0.06;
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t + delay);
+
+      gain.gain.setValueAtTime(0.4, t + delay);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + delay + 0.3);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(t + delay);
+      osc.stop(t + delay + 0.3);
+    });
+  }
+
   // 15. Looping Procedural Ambient Music that shifts mood per Time-of-Day
   setPhase(phaseId) {
     this.currentPhase = phaseId;

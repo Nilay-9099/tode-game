@@ -103,6 +103,16 @@ export const FLAVOR_BUGS = {
     icon: '✨',
     score: 5,
   },
+  GOLDEN: {
+    id: 'golden',
+    name: 'Golden Dragonfly',
+    element: 'wildcard',
+    colorHex: 0xffd166,
+    colorCss: '#ffd166',
+    glowColor: 0xffb703,
+    icon: '🌟',
+    score: 50,
+  },
 };
 
 // Fusion Recipes (Order in stomach does not matter)

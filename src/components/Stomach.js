@@ -4,6 +4,7 @@
 import { GAME_CONSTANTS, FUSION_RECIPES } from '../constants.js';
 import { eventBus } from '../eventBus.js';
 import { sounds } from './Audio.js';
+import { perkManager } from './Perks.js';
 
 export class StomachSystem {
   constructor() {
@@ -28,18 +29,19 @@ export class StomachSystem {
       eventBus.emit('stomach:burp', expelled);
     }
 
+    const digestTime = GAME_CONSTANTS.DIGEST_TIME + (perkManager?.modifiers?.digestTimeBonus || 0);
     const slotData = {
       bug,
       element: bug.element,
       colorHex: bug.colorHex,
       colorCss: bug.colorCss,
-      timer: GAME_CONSTANTS.DIGEST_TIME,
-      maxTimer: GAME_CONSTANTS.DIGEST_TIME,
+      timer: digestTime,
+      maxTimer: digestTime,
     };
     this.slots.push(slotData);
 
     const fusion = this.getCurrentFusion();
-    if (this.slots.length === 2 && fusion && fusion.id !== 'plain_spit') {
+    if (this.slots.length >= 2 && fusion && fusion.id !== 'plain_spit') {
       sounds.playFusionDing();
       const isNew = !this.knownFusions.has(fusion.id);
       if (isNew) {
@@ -61,8 +63,15 @@ export class StomachSystem {
       return FUSION_RECIPES[el] || FUSION_RECIPES['empty'];
     }
 
-    // 2 slots: sort elements for consistent key
-    const els = [this.slots[0].element, this.slots[1].element].sort();
+    // Mix 2 newest flavors
+    const sA = this.slots[this.slots.length - 2];
+    const sB = this.slots[this.slots.length - 1];
+    let elA = sA.element;
+    let elB = sB.element;
+    if (elA === 'wildcard') elA = elB === 'wildcard' ? 'fire' : elB;
+    if (elB === 'wildcard') elB = elA === 'wildcard' ? 'fire' : elA;
+
+    const els = [elA, elB].sort();
     const key = `${els[0]}+${els[1]}`;
     return FUSION_RECIPES[key] || FUSION_RECIPES['empty'];
   }
@@ -133,6 +142,7 @@ export class StomachSystem {
       })),
       fusion: this.getCurrentFusion(),
       flavorStreak: this.flavorStreak,
+      maxSlots: this.maxSlots,
       streakMultiplier:
         GAME_CONSTANTS.STREAK_MULTIPLIERS[
           Math.min(this.flavorStreak, GAME_CONSTANTS.STREAK_MULTIPLIERS.length - 1)

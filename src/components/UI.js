@@ -37,6 +37,18 @@ export class UIManager {
     this.spitName = document.getElementById('spitName');
     this.streakBadge = document.getElementById('streakBadge');
 
+    // Stomach Slot 2 (Third Stomach)
+    this.stomachSlot2 = document.getElementById('stomachSlot2');
+    this.slotIcon2 = document.getElementById('slotIcon2');
+    this.slotSec2 = document.getElementById('slotSec2');
+    this.ringProgress2 = document.getElementById('ringProgress2');
+
+    // Perk Draft Modal
+    this.perkDraftModal = document.getElementById('perkDraftModal');
+    this.perkCardsContainer = document.getElementById('perkCardsContainer');
+    this.onPerkSelectedCallback = null;
+    this.perkKeyHandler = null;
+
     // Phase Banner
     this.phaseBanner = document.getElementById('phaseBanner');
     this.bannerTitle = document.getElementById('bannerTitle');
@@ -218,6 +230,29 @@ export class UIManager {
       this.stomachSlot1.classList.remove('filled');
       this.slotIcon1.textContent = '🦗';
       this.ringProgress1.style.strokeDashoffset = '138';
+      this.slotSec1.textContent = '';
+    }
+
+    // Slot 2 (Third Stomach)
+    const slot2 = snapshot.slots[2];
+    if (this.stomachSlot2) {
+      if (snapshot.maxSlots >= 3) {
+        this.stomachSlot2.style.display = 'flex';
+        if (slot2) {
+          this.stomachSlot2.classList.add('filled');
+          this.slotIcon2.textContent = slot2.element === 'fire' ? '🔥' : slot2.element === 'ice' ? '❄️' : '⚡';
+          this.slotSec2.textContent = `${slot2.seconds}s`;
+          this.ringProgress2.style.strokeDashoffset = (138 * (1 - slot2.pct)).toString();
+          this.ringProgress2.style.stroke = slot2.colorCss;
+        } else {
+          this.stomachSlot2.classList.remove('filled');
+          this.slotIcon2.textContent = '🦗';
+          this.ringProgress2.style.strokeDashoffset = '138';
+          this.slotSec2.textContent = '';
+        }
+      } else {
+        this.stomachSlot2.style.display = 'none';
+      }
     }
 
     // Current Spit Name & Color
@@ -343,6 +378,59 @@ export class UIManager {
         row.innerHTML = `<span>#${idx + 1} Wave ${entry.wave} (${entry.date})</span><strong>${entry.score} pts</strong>`;
         this.leaderboardList.appendChild(row);
       });
+    }
+  }
+
+  showPerkDraft(offers, onSelect) {
+    if (!this.perkDraftModal || !this.perkCardsContainer) return;
+    this.onPerkSelectedCallback = onSelect;
+    this.perkCardsContainer.innerHTML = '';
+
+    offers.forEach((perk, index) => {
+      const card = document.createElement('div');
+      card.className = `perk-card rarity-${perk.rarity || 'common'}`;
+      card.innerHTML = `
+        <span class="perk-key-badge">${index + 1}</span>
+        <div class="perk-card-icon">${perk.icon || '✨'}</div>
+        <div class="perk-card-name">${perk.name}</div>
+        <div class="perk-card-desc">${perk.description}</div>
+        <div class="perk-card-btn">Select [${index + 1}]</div>
+      `;
+      card.addEventListener('click', () => {
+        this.hidePerkDraft();
+        if (this.onPerkSelectedCallback) this.onPerkSelectedCallback(perk);
+      });
+      this.perkCardsContainer.appendChild(card);
+    });
+
+    if (this.perkKeyHandler) {
+      window.removeEventListener('keydown', this.perkKeyHandler);
+    }
+    this.perkKeyHandler = (e) => {
+      let chosenIndex = -1;
+      if (e.key === '1') chosenIndex = 0;
+      else if (e.key === '2') chosenIndex = 1;
+      else if (e.key === '3') chosenIndex = 2;
+
+      if (chosenIndex >= 0 && chosenIndex < offers.length) {
+        window.removeEventListener('keydown', this.perkKeyHandler);
+        this.perkKeyHandler = null;
+        this.hidePerkDraft();
+        if (this.onPerkSelectedCallback) this.onPerkSelectedCallback(offers[chosenIndex]);
+      }
+    };
+    window.addEventListener('keydown', this.perkKeyHandler);
+
+    this.perkDraftModal.style.display = 'flex';
+  }
+
+  hidePerkDraft() {
+    if (this.perkDraftModal) {
+      this.perkDraftModal.style.display = 'none';
+    }
+    if (this.perkKeyHandler) {
+      window.removeEventListener('keydown', this.perkKeyHandler);
+      this.perkKeyHandler = null;
     }
   }
 }

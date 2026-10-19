@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { FLAVOR_BUGS, DAY_PHASES } from '../constants.js';
 import { eventBus } from '../eventBus.js';
 import { sounds } from './Audio.js';
+import { perkManager } from './Perks.js';
 
 export class BugManager {
   constructor(scene, particles) {
@@ -43,6 +44,7 @@ export class BugManager {
       ember: new THREE.MeshPhongMaterial({ color: 0xff5400, emissive: 0xff3700, emissiveIntensity: 0.7, shininess: 100 }),
       frost: new THREE.MeshPhongMaterial({ color: 0x00f5d4, emissive: 0x00b4d8, emissiveIntensity: 0.7, shininess: 100 }),
       spark: new THREE.MeshPhongMaterial({ color: 0xfee440, emissive: 0xffb703, emissiveIntensity: 0.7, shininess: 100 }),
+      golden: new THREE.MeshPhongMaterial({ color: 0xffd166, emissive: 0xffb703, emissiveIntensity: 0.9, shininess: 120 }),
       crumb: new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0xcccccc, emissiveIntensity: 0.5, shininess: 80 }),
     };
 
@@ -50,6 +52,7 @@ export class BugManager {
       ember: new THREE.MeshBasicMaterial({ color: 0xff5400, side: THREE.DoubleSide, transparent: true, opacity: 0.45, depthWrite: false }),
       frost: new THREE.MeshBasicMaterial({ color: 0x00f5d4, side: THREE.DoubleSide, transparent: true, opacity: 0.45, depthWrite: false }),
       spark: new THREE.MeshBasicMaterial({ color: 0xfee440, side: THREE.DoubleSide, transparent: true, opacity: 0.45, depthWrite: false }),
+      golden: new THREE.MeshBasicMaterial({ color: 0xffd166, side: THREE.DoubleSide, transparent: true, opacity: 0.55, depthWrite: false }),
       crumb: new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.35, depthWrite: false }),
     };
   }
@@ -76,6 +79,11 @@ export class BugManager {
 
     if (this.rng() < 0.15) {
       chosenBug = FLAVOR_BUGS.CRUMB;
+    }
+
+    const goldenChance = 0.05 * (perkManager?.modifiers?.goldenBugChanceMult || 1.0);
+    if (this.rng() < goldenChance) {
+      chosenBug = FLAVOR_BUGS.GOLDEN;
     }
 
     const group = new THREE.Group();

@@ -137,6 +137,20 @@ export class TadpoleManager {
     }
   }
 
+  restoreOneLostTadpole() {
+    const lost = this.tadpoles.find((t) => t.state === 'lost');
+    if (!lost) return false;
+    lost.state = 'swimming';
+    lost.group.visible = true;
+    lost.group.position.set(this.pondCenter.x, this.pondCenter.y, 0.4);
+    if (this.particles) {
+      this.particles.emitCollectSparkle(this.pondCenter.x, this.pondCenter.y, 1, 0x00f5d4);
+    }
+    sounds.playTadpoleSaved();
+    eventBus.emit('tadpole:saved', lost);
+    return true;
+  }
+
   update(delta, time) {
     for (const t of this.tadpoles) {
       if (t.state === 'swimming') {

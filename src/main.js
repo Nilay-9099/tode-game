@@ -29,6 +29,7 @@ import { gameState, GAME_STATES, RUN_SUBSTATES } from './core/StateMachine.js';
 import { saveManager } from './core/Save.js';
 import { initFirebase } from './net/firebase.js';
 import { FLAVOR_BUGS, ENEMY_CONFIGS } from './constants.js';
+import { perkManager } from './components/Perks.js';
 
 async function init() {
   // 1. Scene & Lighting Setup
@@ -115,12 +116,22 @@ async function init() {
     gameCamera.addTrauma(0.25);
     particles.emitShockwaveSparks(player.group.position.x, player.group.position.y, GAME_CONSTANTS.BURP_KNOCKBACK_RADIUS);
 
-    for (const e of enemyManager.enemies) {
+    const burpDmg = perkManager.modifiers.burpDamage || 0;
+
+    for (let i = enemyManager.enemies.length - 1; i >= 0; i--) {
+      const e = enemyManager.enemies[i];
       const d = Math.hypot(e.group.position.x - player.group.position.x, e.group.position.y - player.group.position.y);
       if (d <= GAME_CONSTANTS.BURP_KNOCKBACK_RADIUS + e.radius) {
         const push = new THREE.Vector2(e.group.position.x - player.group.position.x, e.group.position.y - player.group.position.y).normalize();
         e.group.position.x += push.x * GAME_CONSTANTS.BURP_KNOCKBACK_FORCE;
         e.group.position.y += push.y * GAME_CONSTANTS.BURP_KNOCKBACK_FORCE;
+
+        if (burpDmg > 0) {
+          e.hp -= burpDmg;
+          if (e.hp <= 0) {
+            onEnemyKilled(e, { id: 'burp_boom', name: 'Burp Boom' });
+          }
+        }
       }
     }
   });
@@ -166,11 +177,32 @@ async function init() {
     score += wave * GAME_CONSTANTS.SCORE_WAVE_CLEAR;
     ui.updateScore(score, highScore);
 
+    // Tadpole Blessing perk check: restore 1 lost tadpole every N waves
+    if (
+      perkManager.modifiers.tadpoleRegenInterval > 0 &&
+      wave > 1 &&
+      wave % perkManager.modifiers.tadpoleRegenInterval === 0
+    ) {
+      tadpoleManager.restoreOneLostTadpole();
+      ui.updateTadpoles(tadpoleManager);
+    }
+
     if (wave % 5 === 0) {
       enemyManager.spawnBoss();
       if (ui.bossBarContainer) ui.bossBarContainer.style.display = 'block';
     } else {
       if (ui.bossBarContainer) ui.bossBarContainer.style.display = 'none';
+    }
+
+    // Trigger Roguelite Perk Draft ("Bug Buffet") for waves >= 2
+    if (wave >= 2) {
+      gameState.setSubstate(RUN_SUBSTATES.PERK_DRAFT);
+      const offers = perkManager.getDraftOffers(3);
+      ui.showPerkDraft(offers, (selectedPerk) => {
+        perkManager.applyPerk(selectedPerk.id, player, stomach, tongue, tadpoleManager, ui);
+        gameState.setSubstate(RUN_SUBSTATES.COMBAT);
+        ui.showVictoryBanner('BUFFET CONSUMED!', `Acquired: ${selectedPerk.name}`);
+      });
     }
   }
 
@@ -249,6 +281,10 @@ async function init() {
     ui.updateUlt(player.ultEnergy);
     ui.updateTadpoles(tadpoleManager);
 
+    perkManager.reset();
+    ui.hidePerkDraft();
+    gameState.setState(GAME_STATES.RUN, RUN_SUBSTATES.COMBAT);
+
     clock.getDelta();
   }
 
@@ -277,6 +313,16 @@ async function init() {
       atmosphere.currentPhaseKey = String(name).toUpperCase();
       atmosphere.setPhaseForWave(wave);
       console.log(`🌅 [Debug] Phase set to: ${name}`);
+    };
+    window.__tode.draftPerk = () => {
+      gameState.setSubstate(RUN_SUBSTATES.PERK_DRAFT);
+      const offers = perkManager.getDraftOffers(3);
+      ui.showPerkDraft(offers, (selectedPerk) => {
+        perkManager.applyPerk(selectedPerk.id, player, stomach, tongue, tadpoleManager, ui);
+        gameState.setSubstate(RUN_SUBSTATES.COMBAT);
+        ui.showVictoryBanner('BUFFET CONSUMED!', `Acquired: ${selectedPerk.name}`);
+      });
+      console.log('🐛 [Debug] Triggered Perk Draft Modal');
     };
     window.__tode.winNow = () => {
       ui.showVictoryBanner('🏆 VICTORY (DEBUG)', 'All Tadpoles Protected!');
@@ -506,7 +552,7 @@ async function init() {
     atmosphere.update(delta);
     map.update(time);
 
-    if (!isGameOver) {
+    if (!isGameOver && gameState.isSimActive()) {
       // Passive score
       score += 0.1 * delta;
       ui.updateScore(score, highScore);
