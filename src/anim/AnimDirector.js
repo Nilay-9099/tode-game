@@ -65,7 +65,42 @@ export class AnimDirector {
       }
     });
 
-    // 5. Generic Clip Request
+    // 5. Shockwave Stomp
+    eventBus.on('shockwave:fired', () => {
+      if (this.targets.tode) {
+        this.clipPlayer.play('shockwave_stomp', { tode: this.targets.tode });
+      }
+    });
+
+    // 6. Meteor Slam
+    eventBus.on('slam:fired', () => {
+      if (this.targets.tode) {
+        this.clipPlayer.play('meteor_slam', { tode: this.targets.tode });
+      }
+    });
+
+    // 7. Hurt Recoil
+    eventBus.on('player:damaged', () => {
+      if (this.targets.tode) {
+        this.clipPlayer.play('hurt_recoil', { tode: this.targets.tode });
+      }
+    });
+
+    // 8. Burp Puff
+    eventBus.on('stomach:burp', () => {
+      if (this.targets.tode) {
+        this.clipPlayer.play('burp_puff', { tode: this.targets.tode });
+      }
+    });
+
+    // 9. Death Flop
+    eventBus.on('game:over', () => {
+      if (this.targets.tode) {
+        this.clipPlayer.play('death_flop', { tode: this.targets.tode });
+      }
+    });
+
+    // 10. Generic Clip Request
     eventBus.on(V3_EVENTS.ANIM_REQUEST, (clipId, targetOverride, options) => {
       const ctx = targetOverride || this.targets;
       this.clipPlayer.play(clipId, ctx, options);

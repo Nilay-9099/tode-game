@@ -89,8 +89,8 @@ class SoundEngine {
     osc.stop(t + 0.12);
   }
 
-  // 3. Swallow Gulp (Satisfying throat glug)
-  playGulp() {
+  // 3. Swallow Gulp (Satisfying throat glug with flavor-tuned pitch - v3 Spec Section 8)
+  playGulp(flavor = 'plain') {
     if (this.isMuted) return;
     this.ensureContext();
     if (!this.ctx) return;
@@ -99,10 +99,19 @@ class SoundEngine {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
+    const baseFreqs = {
+      ember: 140,
+      frost: 260,
+      spark: 380,
+      golden: 520,
+      plain: 220,
+    };
+    const startFreq = baseFreqs[flavor] || 220;
+
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(260, t);
-    osc.frequency.exponentialRampToValueAtTime(180, t + 0.08);
-    osc.frequency.exponentialRampToValueAtTime(320, t + 0.16);
+    osc.frequency.setValueAtTime(startFreq, t);
+    osc.frequency.exponentialRampToValueAtTime(startFreq * 0.65, t + 0.08);
+    osc.frequency.exponentialRampToValueAtTime(startFreq * 1.25, t + 0.16);
 
     gain.gain.setValueAtTime(0.45, t);
     gain.gain.exponentialRampToValueAtTime(0.01, t + 0.18);
@@ -111,6 +120,34 @@ class SoundEngine {
     gain.connect(this.sfxGain);
     osc.start(t);
     osc.stop(t + 0.18);
+  }
+
+  // 3b. Snatch Whoosh (Whip elastic throw)
+  playSnatchWhoosh() {
+    this.playTongue();
+  }
+
+  // 3c. Snatch Miss Flop (Soft embarrassingly limp whiff slap)
+  playMissFlop() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(180, t);
+    osc.frequency.exponentialRampToValueAtTime(45, t + 0.14);
+
+    gain.gain.setValueAtTime(0.25, t);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.14);
+
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(t);
+    osc.stop(t + 0.14);
   }
 
   // 4. Fusion Ding (Harmonic magical chord when 2 flavors combine)

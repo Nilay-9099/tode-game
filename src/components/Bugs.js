@@ -172,12 +172,21 @@ export class BugManager {
         continue;
       }
 
-      b.group.position.z = b.baseZ + Math.sin(time * 3 + b.timeOffset) * 2.5;
-      b.leftWing.rotation.y = Math.sin(time * 24 + b.timeOffset) * 0.7;
-      b.rightWing.rotation.y = -Math.sin(time * 24 + b.timeOffset) * 0.7;
-      b.body.rotation.z += delta * 1.5;
-
       const dist = Math.hypot(pPos.x - b.group.position.x, pPos.y - b.group.position.y);
+      const isAware = dist < 55;
+
+      // Organic hovering & aware panic flutter (v3 Spec Section 7.5)
+      const flutterSpeed = isAware ? 42 : 24;
+      b.group.position.z = b.baseZ + Math.sin(time * 3 + b.timeOffset) * 2.5;
+      b.leftWing.rotation.y = Math.sin(time * flutterSpeed + b.timeOffset) * 0.75;
+      b.rightWing.rotation.y = -Math.sin(time * flutterSpeed + b.timeOffset) * 0.75;
+      b.body.rotation.z += delta * (isAware ? 3.0 : 1.5);
+
+      if (isAware) {
+        b.group.position.x += Math.sin(time * 16 + b.timeOffset) * 0.35;
+        b.group.position.y += Math.cos(time * 16 + b.timeOffset) * 0.35;
+      }
+
       if (dist < 26) {
         this.collect(i, player, stomach);
       }

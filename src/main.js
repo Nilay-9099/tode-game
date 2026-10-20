@@ -33,9 +33,12 @@ import { perkManager } from './components/Perks.js';
 import wavesData from './data/waves.json';
 import { PostFX } from './components/PostFX.js';
 import { affinityManager } from './sim/Affinity.js';
+import { PassivesManager } from './sim/Passives.js';
 import { FrogRig } from './render/FrogRig.js';
 import { AnimDirector } from './anim/AnimDirector.js';
 import { tweenManager } from './anim/Tween.js';
+import { AffinityBars } from './ui/AffinityBars.js';
+import { FormChip } from './ui/FormChip.js';
 
 async function init() {
   // 1. Scene & Lighting Setup
@@ -78,6 +81,8 @@ async function init() {
   const atmosphere = new AtmosphereManager(scene, ambientLight, dirLight);
   const ui = new UIManager();
   const quality = new QualityManager(renderer, postFX);
+  const affinityBars = new AffinityBars();
+  const formChip = new FormChip();
   initFirebase().catch(() => {});
 
   // 4. Map & Houses
@@ -105,6 +110,7 @@ async function init() {
   const bugManager = new BugManager(scene, particles);
   const tadpoleManager = new TadpoleManager(scene, particles);
   const enemyManager = new EnemyManager(scene, particles);
+  const passivesManager = new PassivesManager(scene, particles);
   const floatingText = new FloatingTextManager(gameCamera.camera);
 
   // 7. Game State
@@ -154,6 +160,12 @@ async function init() {
         }
       }
     }
+
+    passivesManager.onBurp(player.group.position, GAME_CONSTANTS.BURP_KNOCKBACK_RADIUS, enemyManager.enemies, onEnemyKilled);
+  });
+
+  eventBus.on('player:landed', (pos) => {
+    passivesManager.onHopLanded(pos, enemyManager.enemies, onEnemyKilled);
   });
 
   eventBus.on('stomach:changed', () => {
@@ -379,6 +391,9 @@ async function init() {
     stomach.slots = [];
     stomach.resetStreak();
     affinityManager.reset();
+    passivesManager.clear();
+    affinityBars.reset();
+    formChip.reset();
     tadpoleManager.reset();
     enemyManager.clearAll();
     bugManager.clear();
@@ -448,7 +463,13 @@ async function init() {
       const thresholds = { 1: 20, 2: 50, 3: 90 };
       const val = thresholds[stage] || 20;
       affinityManager.setAffinity(el, val);
-      console.log(`🧬 [Debug] Evolved ${el} to Stage ${stage} (${val} affinity)`);
+      const formKey = `${String(el).toLowerCase()}_${stage}`;
+      passivesManager.addForm(formKey);
+      console.log(`🧬 [Debug] Evolved ${el} to Stage ${stage} (Form: ${formKey})`);
+    };
+    window.__tode.showForm = (id) => {
+      passivesManager.addForm(id);
+      console.log(`🐸 [Debug] Applied form: ${id}`);
     };
     window.__tode.winNow = () => {
       ui.showVictoryBanner('🏆 VICTORY (DEBUG)', 'All Tadpoles Protected!');
@@ -843,6 +864,7 @@ async function init() {
     tweenManager.update(delta, delta);
     animDirector.update(delta);
     frogRig.update(delta);
+    passivesManager.update(delta, player, enemyManager.enemies, onEnemyKilled);
 
     // Particles & Render
     particles.update(delta);

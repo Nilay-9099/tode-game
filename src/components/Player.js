@@ -229,6 +229,7 @@ export async function createPlayer() {
         );
       }
 
+      eventBus.emit('shockwave:fired');
       return true;
     },
 
@@ -245,6 +246,7 @@ export async function createPlayer() {
 
       sounds.playJump();
       eventBus.emit('slam:used');
+      eventBus.emit('slam:fired');
       return true;
     },
 
@@ -364,6 +366,7 @@ export async function createPlayer() {
           if (particles) {
             particles.emitJumpDust(this.group.position.x, this.group.position.y);
           }
+          eventBus.emit('player:landed', this.group.position);
         } else {
           this.group.position.x = THREE.MathUtils.lerp(this.moveStart.x, this.moveTarget.x, this.moveProgress);
           this.group.position.y = THREE.MathUtils.lerp(this.moveStart.y, this.moveTarget.y, this.moveProgress);
