@@ -590,6 +590,79 @@ class SoundEngine {
     });
   }
 
+  // 14g. Evolution Riser (Ascending harmonic Shepard sweep - v3 Spec Section 8)
+  playEvolutionRiser(element = 'ember') {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = element === 'ember' ? 'sawtooth' : element === 'spark' ? 'square' : 'triangle';
+    osc.frequency.setValueAtTime(120, t);
+    osc.frequency.exponentialRampToValueAtTime(720, t + 0.9);
+
+    gain.gain.setValueAtTime(0.1, t);
+    gain.gain.linearRampToValueAtTime(0.4, t + 0.75);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.9);
+
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(t);
+    osc.stop(t + 0.9);
+  }
+
+  // 14h. Evolution Flash Chime (Shimmering peak chord)
+  playEvolutionFlash() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const notes = [440, 554.37, 659.25, 880, 1108.7]; // A major 9th
+    const t = this.ctx.currentTime;
+    notes.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const delay = idx * 0.03;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t + delay);
+
+      gain.gain.setValueAtTime(0.35, t + delay);
+      gain.gain.exponentialRampToValueAtTime(0.005, t + delay + 0.5);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(t + delay);
+      osc.stop(t + delay + 0.5);
+    });
+  }
+
+  // 14i. Evolution Landing Thud
+  playEvolutionLand() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(150, t);
+    osc.frequency.exponentialRampToValueAtTime(30, t + 0.25);
+
+    gain.gain.setValueAtTime(0.6, t);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.25);
+
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(t);
+    osc.stop(t + 0.25);
+  }
+
   // 14d. Enemy Telegraph Alert (Warning buzz)
   playTelegraph() {
     if (this.isMuted) return;

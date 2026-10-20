@@ -39,6 +39,8 @@ import { AnimDirector } from './anim/AnimDirector.js';
 import { tweenManager } from './anim/Tween.js';
 import { AffinityBars } from './ui/AffinityBars.js';
 import { FormChip } from './ui/FormChip.js';
+import { EvolutionManager } from './sim/Evolution.js';
+import { EvolutionBanner } from './ui/EvolutionBanner.js';
 
 async function init() {
   // 1. Scene & Lighting Setup
@@ -83,6 +85,23 @@ async function init() {
   const quality = new QualityManager(renderer, postFX);
   const affinityBars = new AffinityBars();
   const formChip = new FormChip();
+  const evolutionManager = new EvolutionManager(affinityManager, passivesManager);
+  const evolutionBanner = new EvolutionBanner();
+
+  eventBus.on(V3_EVENTS.EVOLUTION_STARTED, (formId) => {
+    const el = formId.split('_')[0];
+    sounds.playEvolutionRiser(el);
+    gameCamera.addTrauma(0.15);
+  });
+
+  eventBus.on(V3_EVENTS.EVOLUTION_APPLIED, () => {
+    sounds.playEvolutionFlash();
+    gameCamera.addTrauma(0.3);
+  });
+
+  eventBus.on(V3_EVENTS.EVOLUTION_ENDED, () => {
+    sounds.playEvolutionLand();
+  });
   initFirebase().catch(() => {});
 
   // 4. Map & Houses
@@ -394,6 +413,8 @@ async function init() {
     passivesManager.clear();
     affinityBars.reset();
     formChip.reset();
+    evolutionManager.reset();
+    evolutionBanner.hide();
     tadpoleManager.reset();
     enemyManager.clearAll();
     bugManager.clear();
@@ -865,6 +886,7 @@ async function init() {
     animDirector.update(delta);
     frogRig.update(delta);
     passivesManager.update(delta, player, enemyManager.enemies, onEnemyKilled);
+    evolutionManager.update(delta, player);
 
     // Particles & Render
     particles.update(delta);
