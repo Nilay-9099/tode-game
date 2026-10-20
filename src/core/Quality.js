@@ -24,6 +24,10 @@ export class QualityManager {
 
     this.framesInWindow++;
     const now = performance.now();
+    if (this.framesInWindow === 1) {
+      this.windowStart = now;
+      return;
+    }
     const elapsed = now - this.windowStart;
 
     if (elapsed >= this.sampleWindow) {
