@@ -291,7 +291,10 @@ export class EnemyManager {
       bossSummonTimer: 0,
 
       timeOffset: this.rng() * 10,
+      spawnScale: 0.1,
     };
+
+    group.scale.set(0.1, 0.1, 0.1);
 
     if (config.id === 'boss_mower') {
       this.boss = enemy;
@@ -348,6 +351,12 @@ export class EnemyManager {
 
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const e = this.enemies[i];
+
+      // Spawn pop-in animation (v3 Spec Section 7.6)
+      if (e.spawnScale !== undefined && e.spawnScale < 1.0) {
+        e.spawnScale = THREE.MathUtils.lerp(e.spawnScale, 1.0, delta * 14);
+        e.group.scale.setScalar(e.spawnScale);
+      }
       const d = Math.hypot(e.group.position.x - shockX, e.group.position.y - shockY);
 
       if (d <= radius + e.radius) {
@@ -426,6 +435,12 @@ export class EnemyManager {
 
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const e = this.enemies[i];
+
+      // Spawn pop-in animation (v3 Spec Section 7.6)
+      if (e.spawnScale !== undefined && e.spawnScale < 1.0) {
+        e.spawnScale = THREE.MathUtils.lerp(e.spawnScale, 1.0, delta * 14);
+        e.group.scale.setScalar(e.spawnScale);
+      }
 
       if (e.freezeTimer > 0) {
         e.freezeTimer -= delta;

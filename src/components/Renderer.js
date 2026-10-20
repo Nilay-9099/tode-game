@@ -7,6 +7,7 @@ export function createRenderer() {
     alpha: true,
     antialias: true,
     powerPreference: 'high-performance',
+    preserveDrawingBuffer: true,
   });
 
   renderer.setSize(window.innerWidth, window.innerHeight);

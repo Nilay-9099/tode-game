@@ -97,6 +97,7 @@ export class DebugHarness {
       evolve: (el, stage) => console.warn('Wired in main.js'),
       showForm: (id) => console.warn('Wired in main.js'),
       cook: (recipeId) => console.warn('Wired in main.js'),
+      showcase: () => console.warn('Wired in main.js'),
       history: () => [],
       whisper: () => console.warn('Wired in main.js'),
       playClip: (id) => console.warn('Wired in main.js'),

@@ -46,6 +46,7 @@ import { RecipeManager } from './sim/Recipes.js';
 import { FormVfx } from './render/FormVfx.js';
 import { WhisperToast } from './ui/WhisperToast.js';
 import { RecipeStrip } from './ui/RecipeStrip.js';
+import { PortraitModal } from './ui/Portrait.js';
 import { claimRecipeDiscovery } from './net/discoveries.js';
 
 async function init() {
@@ -98,6 +99,7 @@ async function init() {
   const formVfx = new FormVfx(scene);
   const whisperToast = new WhisperToast();
   const recipeStrip = new RecipeStrip();
+  const portraitModal = new PortraitModal(renderer);
 
   eventBus.on(V3_EVENTS.EVOLUTION_STARTED, (formId) => {
     const el = formId.split('_')[0];
@@ -248,6 +250,14 @@ async function init() {
     player.group.visible = false;
     sounds.playGameOver();
     ui.showGameOver(score, highScore, wave, tadpoleManager.getSafeCount(), stomach.longestStreak, reason);
+
+    const activeForm = evolutionManager.activeHybrid || Array.from(evolutionManager.activeForms).pop() || 'classic';
+    const cookedList = Object.keys(recipeManager.cookCounts);
+    setTimeout(() => {
+      if (isGameOver) {
+        portraitModal.show(affinityManager.getValues(), activeForm, cookedList, score, wave);
+      }
+    }, 1200);
   });
 
   function startNextWave() {
@@ -458,6 +468,7 @@ async function init() {
     formVfx.onFeastEnded();
     whisperToast.hide();
     recipeStrip.reset();
+    portraitModal.hide();
     tadpoleManager.reset();
     enemyManager.clearAll();
     bugManager.clear();
@@ -554,6 +565,33 @@ async function init() {
     window.__tode.loseNow = () => {
       eventBus.emit('game:over', 'Debug Force Defeat');
     };
+    window.__tode.showcase = () => {
+      applyShowcaseMode();
+    };
+  }
+
+  function applyShowcaseMode() {
+    wave = 3; // advances to wave 4
+    startNextWave();
+    affinityManager.setAffinity('ember', 55);
+    affinityManager.setAffinity('frost', 30);
+    affinityManager.setAffinity('spark', 10);
+    passivesManager.addForm('ember_2');
+    recipeManager.discoveredRecipes.add('bonfire');
+    recipeManager.discoveredRecipes.add('coldsnap');
+    recipeManager.saveDiscoveries();
+    ui.showVictoryBanner('🌟 SHOWCASE MODE ACTIVE', 'Wave 4 | Ember 55, Frost 30 | Discoveries Ready!');
+    for (let i = 0; i < 6; i++) {
+      bugManager.spawnRandom(130);
+    }
+    setTimeout(() => {
+      recipeManager.selectWhisper(4, 42);
+    }, 1500);
+    console.log('🌟 [Showcase Mode] Applied jury preset!');
+  }
+
+  if (window.location.search.includes('showcase=1')) {
+    setTimeout(() => applyShowcaseMode(), 400);
   }
 
   // Raycasting for Mouse Aiming
@@ -593,6 +631,7 @@ async function init() {
     // Space to restart on Game Over
     if (isGameOver) {
       if (e.code === 'Space') {
+        portraitModal.hide();
         resetGame();
       }
       return;
@@ -727,6 +766,14 @@ async function init() {
   const restartBtn = document.getElementById('restartBtn');
   if (restartBtn) {
     restartBtn.addEventListener('click', () => resetGame());
+  }
+
+  const portraitBtn = document.getElementById('portraitBtn');
+  if (portraitBtn) {
+    portraitBtn.addEventListener('click', () => {
+      const activeForm = evolutionManager.activeHybrid || Array.from(evolutionManager.activeForms).pop() || 'classic';
+      portraitModal.show(affinityManager.getValues(), activeForm, Object.keys(recipeManager.cookCounts), score, wave);
+    });
   }
 
   // Daily Challenge Mode Toggle (Extension Feature)
