@@ -1,4 +1,4 @@
-# 🐸 Tode and the Last Lilypad: Flavor Fusion Defense (Roguelite Edition)
+# 🐸 Tode and the Last Lilypad: Flavor Fusion Defense (v3 Evolution & Animation Overhaul)
 
 > **JetBrains Academy / Coursera Final Project & Custom Extension Submission**  
 > **Course:** *Build a Game with an AI Coding Agent*  
@@ -11,11 +11,14 @@
 
 **Tode and the Last Lilypad** is an isometric 3D action roguelite defense game. You play as **Tode**, an amphibious pond guardian defending 5 vulnerable tadpoles from greedy garden invaders: sneaky **Gnomes**, heavily shielded **Armored Beetles**, erratic dive-bombing **Wasps**, swooping **Crows**, and the climactic 3-phase **Lawn Mower King** boss.
 
-Instead of standard weapons, Tode commands the **Flavor Fusion Engine**:
-1. **Snatch** elemental bugs (Ember, Frost, Spark, and Golden Wildcards) hovering above the pond with an elastic tongue.
-2. **Digest & Mix** 2 (or 3 with perks) bugs in Tode's stomach to brew alchemical fusions (Thermal Shock, Glacier Freezes, Chain Lightning, Steam Blinds, Plasma Flares, and Superconductors).
-3. **Spit** elemental projectiles, **Charge a Ground Shockwave** to flip armored carapaces and shatter frozen foes, or leap into the stratosphere for an explosive **Meteor Slam**!
-4. **Draft Roguelite Perks** at the end of each wave via the **Bug Buffet** draft to customize your build.
+### 🧬 What's New in v3: Evolution by Appetite & The Animation Overhaul
+In v3, progression replaces the v2 card-pick perk draft with **Diet-Driven Biological Evolution**:
+1. **You Are What You Eat:** Tode's body, skin tint, procedural visual attachments, and combat passives transform dynamically based on his elemental diet (Ember 🔥, Frost ❄️, Spark ⚡).
+2. **12 Evolved Forms & Hybrids:** 9 elemental stage forms (Stage 1, Stage 2, Apex) and 3 hybrid apex forms (**Steam Toad**, **Plasma Toad**, and **Aurora Toad**).
+3. **The Evolution Beat:** A cinematic transformation moment slowing down world time, playing procedural riser synthesizers, and granting complete invulnerability.
+4. **Secret Recipes & 18s Feasts:** 8 hidden 3-bug eating sequences trigger temporary high-octane Feast transformations, accompanied by cryptic rhyming hints from the Old Toad Sage and global first-discoverer credit on Firebase Firestore.
+5. **Procedural Spline Tongue & Animation Engine:** 10-point physics spline tongue with wave wobble and sag (`TongueRope.js`), anchor rig (`FrogRig.js`), 11 core animation clips (`clips.json`), and an interactive **Animation Lab** (`?lab=1`).
+6. **End-of-Game Run Portrait:** Interactive run pedestal summary with one-click high-resolution PNG export (`PortraitModal`).
 
 ---
 
@@ -24,57 +27,80 @@ Instead of standard weapons, Tode commands the **Flavor Fusion Engine**:
 | Input | Action | In-Depth Mechanics |
 | :--- | :--- | :--- |
 | <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or <kbd>Arrow Keys</kbd> | **Hop Movement** | Analog-feel hopping cycle with landing squash & stretch physics |
+| <kbd>Shift</kbd> + <kbd>WASD</kbd> | **Turn in Place** | Pivot facing direction without hopping |
 | <kbd>Mouse Aim</kbd> | **Ground Aiming** | Real-time ground raycast cursor aiming; Tode faces your cursor instantly |
-| <kbd>Q</kbd> or <kbd>Left Click</kbd> | **Tongue Snatch** | Extend tongue to capture bugs, snatch weak spots, or swat pests |
+| <kbd>Q</kbd> or <kbd>Left Click</kbd> | **Tongue Snatch** | Extend procedural physics tongue spline to capture bugs, snatch weak spots, or swat pests |
 | <kbd>R</kbd> or <kbd>Right Click</kbd> | **Spit Fusion Projectile** | Fire current stomach fusion attack towards cursor |
 | <kbd>Spacebar</kbd> (Hold & Release) | **Ground Shockwave** | Radial seismic wave: flips Armored Beetles, shatters frozen foes |
 | <kbd>E</kbd> (at 100% Meter) | **Ultimate Meteor Slam** | Soar into the air and slam down with camera shake and massive radial AoE |
-| <kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | **Draft Perk** | Pick perks during the between-wave Bug Buffet glassmorphism modal |
-| <kbd>C</kbd> or Codex Button | **Fusion Codex** | Toggle 9-entry interactive modal tracking discovered recipe cards |
-| <kbd>~</kbd> or <kbd>\`</kbd> | **Debug Console** | Open debug harness overlay to test any wave, spawn boss, or toggle perks |
+| <kbd>C</kbd> or Codex Button | **Encyclopedia Codex** | Toggle 3-tab interactive modal: Fusions, Evolved Forms, and Secret Recipes |
+| <kbd>~</kbd> or <kbd>\`</kbd> | **Debug Console** | Open debug harness overlay to test any wave, spawn boss, or toggle forms |
 | <kbd>📅 Daily</kbd> Header Button | **Daily Challenge Mode** | Toggle deterministic Mulberry32 seeded run for today's global seed |
 | <kbd>🔊</kbd> Header Button | **Mute / Unmute** | Toggle procedural Web Audio soundscape |
 
 ---
 
-## 🍲 3. The Flavor Fusion Codex
+## 🧬 3. Evolution by Appetite (v3 System)
 
-Tode's stomach mixes elements in real time. Combine elements to trigger devastating elemental combos:
+### 3.1 Diet Affinities & Thresholds
+Eating bugs builds affinity points toward three elemental flavors:
+* 🔥 **Ember** (+3 per swallow): Aggressive burn auras, magma freckles, and trailing fire patches.
+* ❄️ **Frost** (+3 per swallow): Cryo-armor, icicle crowns, and shattering freeze shards.
+* ⚡ **Spark** (+3 per swallow): High-voltage antennae, shock motes, and chain-arc discharges.
+* ✨ **Golden Wildcard** (+2 to all three): Multi-affinity balance.
 
-| Recipe | Fusion Name | Combat Behavior & Tactical Effect |
+**Thresholds:**
+* **Stage 1 (20 pts):** Subtle skin shift and initial procedural attachment (freckles, rime, spark antennae).
+* **Stage 2 (50 pts):** Distinct body geometry, horns/crest, and active combat passive.
+* **Apex (90 pts):** Full elemental mastery, prominent visual crowns, and game-altering abilities.
+
+### 3.2 Dual-Element Hybrid Forms
+When two elemental meters both reach **Stage 2 (50 pts)**, Tode undergoes dual fusion into an Apex Hybrid:
+* 💨 **Steam Toad** (Ember 50 + Frost 50): Thermal steam aura that continuously blinds and sears nearby pests.
+* 💥 **Plasma Toad** (Ember 50 + Spark 50): Twin high-voltage orbiting plasma motes incinerating invaders.
+* 🌌 **Aurora Toad** (Frost 50 + Spark 50): Prismatic crystal shards that chain-arc electricity upon enemy shatter.
+
+---
+
+## 🍲 4. Secret Recipes & 18-Second Feasts
+
+Eating bugs within a **12-second chaining window** checks against 8 ancient culinary sequences:
+
+| Recipe Name | Required Diet | Feast Effect (18s Duration) |
 | :--- | :--- | :--- |
-| **Ember + Ember** | 🔥 **Inferno Puddle** | Creates a lingering molten flame patch that rapidly burns passing enemies. |
-| **Frost + Frost** | 🧊 **Glacier Freeze** | Deep freezes enemies solid in blocks of ice. **Spacebar Shockwave** shatters them instantly for double score! |
-| **Spark + Spark** | ⚡ **Chain Lightning** | High-voltage electrical arc that branches across multiple nearby garden pests. |
-| **Ember + Frost** | 💨 **Steam Blind** | Thick billow of thermal steam that blinds attackers and grounds aerial Wasps and Crows. |
-| **Ember + Spark** | 💥 **Plasma Flare** | High-damage piercing thermal orb that incinerates straight lanes of enemies. |
-| **Frost + Spark** | 🧲 **Superconductor** | High-intensity electromagnetic pulse causing wide-area cryo-stuns. |
-| **Crumb Combinations** | 🥖 **Breadcrumb Decoy** | Drops an irresistible lure that draws Gnomes away from abducted tadpoles. |
-| **Golden Dragonfly** | ✨ **Wildcard** | Acts as an automatic duplicate of any accompanying flavor element. |
+| 🔥 **Bonfire Feast** | Ember + Ember + Ember | Giant flame tongue, fiery hop trails, and continuous burn aura. |
+| ❄️ **Coldsnap Chill** | Frost + Frost + Frost | Deep freeze aura, double ice projectile firing, and frost shield. |
+| ⚡ **Thunder Banquet** | Spark + Spark + Spark | Rapid chain-lightning discharge on every hop. |
+| ♨️ **Sauna Simmer** | Ember + Frost + Ember | Massive steam cloud that blinds and slows all approaching enemies. |
+| 🍧 **Slush Surprise** | Frost + Spark + Frost | Cryo-electric nova detonating across the entire garden pond. |
+| 🎆 **Garden Fireworks** | Spark + Ember + Spark | Multi-directional piercing spark rockets. |
+| 🌈 **Rainbow Tasting Menu** | Ember + Frost + Spark (Any Order) | Tri-elemental vortex, +30% movement speed, and triple score multiplier. |
+| 👑 **Royal Banquet** | Golden + Golden + Any | Golden invulnerability and instant max-charge ultimate slams. |
 
-> **Pond Dip**: Need to dump your stomach? Stand in the center pond water disc to flush your stomach, triggering a refreshing water sparkle and chime!
-
----
-
-## 🃏 4. "Bug Buffet" Roguelite Perk System
-
-Between waves (starting after Wave 1), Tode chooses from a 3-card draft of game-changing roguelite perks:
-
-* 👝 **Third Stomach Slot**: Expands stomach capacity from 2 to 3 bugs, unlocking 3-element mega-combos!
-* 🗣️ **Echo Spit**: Every spit attack fires a secondary duplicate projectile 80ms later at no extra cost.
-* 💥 **Burp Boom**: Overfilling Tode's stomach triggers a sonic burp explosion that knocks back and damages nearby foes.
-* ⚡ **Sticky Tongue**: Increases tongue reach and speed by +25%.
-* 🌊 **Pond Blessing**: Standing in the sacred pond steadily regenerates health and ultimate energy.
-* 👑 **Dragonfly Gourmet**: Increases spawn rates of rare Golden Dragonfly wildcards.
-* 👢 **Springy Legs**: Boosts hopping movement speed and hop recovery velocity by +20%.
-* 🛡️ **Iron Gut**: Reduces incoming enemy damage by 25%.
-* ❄️ **Permafrost**: Increases enemy freeze duration from 4s to 7s.
-* ⚡ **Overcharge**: Shockwaves discharge secondary crackling lightning rings.
-* 💖 **Tadpole Harmony**: Extends the time tadpoles survive when dragged toward the perimeter by thieves.
+* **Signature Dishes:** Cook any recipe 3 times across your career to permanently unlock its passive buff!
+* **Sage Whispers:** Old Toad Sage offers cryptic rhyming hints between waves (filtered to exclude recipes you've already found).
+* **First Discoverer Credit:** Claims first-ever discovery to Firebase Firestore (`recipes/{recipeId}`) with graceful offline fallback.
 
 ---
 
-## 👾 5. Complete Bestiary & The Lawn Mower King
+## 🛠️ 5. Animation Lab & Showcase URL Parameters
+
+* **`?lab=1` (Animation Lab):** Opens the interactive standalone animation sandbox. Inspect all 11 procedural clips (`idle_breathe`, `hop`, `snatch_hit`, `snatch_miss`, `gulp_throat`, `spit_recoil`, `shockwave_stomp`, `meteor_slam`, `hurt_recoil`, `burp_puff`, `death_flop`), scrub playback speed, test loop toggles, and view bone anchors.
+* **`?showcase=1` (Jury Showcase Preset):** Immediately starts at Wave 4 with Ember 55 / Frost 30 affinity, active discoveries ready in Codex, and nearby bug spawns for instant evaluation within 30 seconds.
+
+---
+
+## 📸 6. Game Over Run Portrait Exporter
+
+When a run concludes, the **Run Portrait Modal** automatically summarizes your achievement:
+* **Active Evolved Form** with elemental badge and styling.
+* **Affinity Meters Breakdown** (Ember %, Frost %, Spark %).
+* **Secret Recipes Cooked** and final score/wave statistics.
+* **📸 Save Portrait (PNG):** Composes and downloads a high-resolution canvas snapshot complete with watermark banner and run stats.
+
+---
+
+## 👾 7. Bestiary & Invader Tactics
 
 | Enemy | Threat | Behavior & Tactics |
 | :--- | :---: | :--- |
@@ -86,27 +112,18 @@ Between waves (starting after Wave 1), Tode chooses from a 3-card draft of game-
 
 ---
 
-## 🎨 6. Visual Quality & The Toy Diorama Shader
+## 🎵 8. Procedural Audio Engine (`Audio.js`)
 
-In alignment with the challenge guidelines, visual appeal is balanced with high-performance execution:
-- **Toy Diorama Post-Processing Shader (`PostFX.js`)**:
-  - **Tilt-Shift Depth Blur**: Simulates macro-lens tilt-shift miniature camera optics, giving the pond a charming toy-like diorama aesthetic.
-  - **Warm Color Grading**: Lifted warm shadows and sunny garden highlights that dynamically adapt across morning, noon, dusk, and nighttime wave transitions.
-  - **Radial Vignette**: Gentle cinematic framing keeping player attention focused on the center pond.
-  - **Adaptive Quality Scaling (`QualityManager.js`)**: Automatically benchmarks frame rates and shifts between `high`, `medium`, and `low` (bypassing post-processing if hardware drops below 50 FPS) to guarantee smooth 60 FPS on all machines.
-
----
-
-## 🎵 7. 100% Procedural Audio Engine (`Audio.js`)
-
-Zero external sound files (`.mp3` or `.wav`) are loaded. Every sound effect and musical note is procedurally generated using the native browser Web Audio API:
-- **Procedural BGM**: Harmonic ambient chords that shift pitch, tempo, and scale according to the time of day (Morning, Noon, Dusk, Night, and Boss Arena).
-- **Boss Arena Percussion**: Synthetic kick drum and noise-snare pulse active during the Lawn Mower King showdown.
-- **Dynamic SFX**: Pitch-swept square waves for tongue flicks, bandpass noise for water splashes, harmonic chimes for pond dips, low-frequency sine sweeps for shockwaves, and resonance-filtered burps.
+Zero external audio files (`.mp3` or `.wav`) are loaded. Every sound effect is procedurally generated using the native browser Web Audio API:
+* **Flavor-Pitched Gulps:** Throat swallow tones shift pitch dynamically based on element (Ember low/warm, Frost crisp/bright, Spark rapid/chirpy).
+* **Snatch Dynamics:** Distinct audible feedback between satisfying tongue hits and deflating tongue miss flops.
+* **Evolution Synthesizers:** Exponential frequency riser for evolution anticipation and resonant cymbal-style flash on form unlock.
+* **Feast Stingers:** Multi-oscillator fanfares and Old Toad Sage wind chime whispers.
+* **Procedural BGM:** Time-of-day responsive harmonic chords (Morning, Noon, Dusk, Night, and Boss Arena).
 
 ---
 
-## 🧪 8. Verification, Testing & Build Instructions
+## 🧪 9. Automated Testing & Build Instructions
 
 ### Installation
 ```bash
@@ -119,16 +136,21 @@ npm run dev
 # Opens Vite dev server on http://localhost:5173/
 ```
 
-### Run Automated Data & Schema Tests
+### Run Automated Acceptance Suite (23 Criteria)
 ```bash
 npm test
-# Validates flavors.json, fusions.json, enemies.json, waves.json, perks.json, phases.json, and codex.json
+# Validates all Data JSON schemas and executes the 23-criteria v3 acceptance suite
+```
+
+### Direct Acceptance Runner
+```bash
+npm run test:acceptance
 ```
 
 ### Production Build
 ```bash
 npm run build
-# Compiles minified, optimized production bundle in dist/
+# Compiles minified, code-split production bundle in dist/
 ```
 
 ### Preview Production Build
@@ -139,23 +161,25 @@ npm run preview
 
 ---
 
-## 🏛️ 9. Evaluation Jury Guide & Criteria Alignment
+## 🏛️ 10. Evaluation Jury Guide & Criteria Alignment
 
 | Evaluation Criteria | Implementation Highlights | Verification Method |
 | :--- | :--- | :--- |
-| **1. Completeness & Runnable Baseline** | Clean Vite build, zero console errors, 60 FPS performance, complete tutorial and wave progression. | Run `npm run build` & `npm test`. Both pass cleanly. |
-| **2. Novel Extension Quality** | Multi-gate roguelite expansion gated under `GAME_CONSTANTS.EXTENSION_ENABLED: true`. Includes the Bug Buffet perk draft, 3rd stomach slot, 9-entry Fusion Codex modal, and Daily Challenge seeded PRNG. | Toggle `GAME_CONSTANTS.EXTENSION_ENABLED` in `src/constants.js`. |
-| **3. Gameplay & Balance** | 10 handcrafted waves with pacing curve, enemy diversity, tadpole rescue priority, counterplay mechanics (shockwave flipping, weak-spot snatches), and Endless Mode loop (Wave 11+). | Play through waves or jump to any wave using the `<kbd>~</kbd>` debug harness. |
-| **4. Creativity & Originality** | The Flavor Fusion crafting loop turns simple eating into an active tactical puzzle, reinforced by procedurally synthesized audio and toy diorama styling. | Combine bugs in Tode's stomach to test all 9 distinct fusion recipes. |
-| **5. Technical Execution** | 100% royalty-free procedural Three.js geometry and Web Audio synthesis (zero third-party assets). Clean separation across EventBus, StateMachine, SaveManager, and QualityManager. | Inspect `src/components/Audio.js`, `src/components/PostFX.js`, and `src/core/*`. |
+| **1. Completeness & Baseline** | Clean Vite build, zero console errors, 60 FPS performance, complete wave progression, boss fight, and victory loop. | Run `npm run build` & `npm test`. Both pass cleanly. |
+| **2. Diet-Driven Evolution** | Replaced card-pick draft with appetite-driven growth. 12 distinct forms with data-driven passives, visual attachments, and cinematic Evolution Beat. | Play normally or test forms via `window.__tode.evolve('ember', 2)`. |
+| **3. Secret Recipes & Feasts** | 8 secret sequences, 12s chaining window, 18s Feasts, Old Toad Sage whispers, and Firebase first-discoverer credit. | Test via `window.__tode.cook('bonfire')` or `window.__tode.whisper()`. |
+| **4. Animation Quality** | Custom 10-point spline physics tongue (`TongueRope.js`), anchor rig (`FrogRig.js`), 11 core animation clips, and Animation Lab. | Visit `http://localhost:5173/?lab=1` to inspect all clips. |
+| **5. Technical Execution** | 100% procedural Three.js geometry and Web Audio synthesis (zero external models/audio). Clean separation across EventBus, StateMachine, SaveManager, and QualityManager. | Inspect `src/components/Audio.js`, `src/render/FrogRig.js`, and `src/anim/*`. |
 
-### Debug Harness Quick-Access (`window.__tode`)
-Press <kbd>~</kbd> in-game or open the browser developer console:
-- `window.__tode.setWave(5)` — Jump directly to Wave 5.
-- `window.__tode.setWave(10)` — Jump directly to Wave 10 Boss Lawn Mower King.
-- `window.__tode.addPerk('third_stomach')` — Instantly grant the 3rd stomach slot.
-- `window.__tode.killAll()` — Clear current active enemies.
-- `window.__tode.godMode()` — Toggle invulnerability.
+### Debug Console Helpers (`window.__tode`)
+Open browser console or press <kbd>~</kbd>:
+- `window.__tode.showcase()` — Activate Showcase Mode (Wave 4, Ember 55, Frost 30).
+- `window.__tode.setAffinity(element, value)` — Set Ember, Frost, or Spark affinity (0-100).
+- `window.__tode.evolve(element, stage)` — Immediately trigger evolution beat for stage 1, 2, or 3.
+- `window.__tode.showForm(formId)` — Instant visual attachment preview (e.g. `'steam'`, `'plasma'`, `'ember_3'`).
+- `window.__tode.cook(recipeId)` — Instantly trigger an 18-second Feast.
+- `window.__tode.whisper()` — Trigger an Old Toad Sage hint.
+- `window.__tode.playClip(clipId)` — Play any animation clip (`'gulp_throat'`, `'death_flop'`, etc.).
 
 ---
 

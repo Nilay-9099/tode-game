@@ -27,10 +27,16 @@ export class GameCamera {
   }
 
   addTrauma(amount) {
+    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
     this.trauma = Math.min(1.0, this.trauma + amount);
   }
 
   kickFov(targetFov = GAME_CONSTANTS.CAMERA_SLAM_FOV_KICK) {
+    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
     this.targetFov = targetFov;
   }
 

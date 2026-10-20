@@ -101,7 +101,8 @@ export class EvolutionManager {
     this.isEvolving = true;
     const isFirst = !this.hasEvolvedAny;
     const isCompressed = !isFirst && !isStage3;
-    const duration = isCompressed ? 1.8 : 2.6;
+    const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = prefersReducedMotion ? 0.6 : (isCompressed ? 1.8 : 2.6);
 
     this.currentEvolution = {
       formId,
@@ -110,11 +111,12 @@ export class EvolutionManager {
       applied: false,
       isFirst,
       isCompressed,
+      prefersReducedMotion,
     };
 
-    // 1. Slow down world simulation
+    // 1. Slow down world simulation (mild if reduced motion)
     if (debugHarness) {
-      debugHarness.timeScale = 0.15;
+      debugHarness.timeScale = prefersReducedMotion ? 0.8 : 0.15;
     }
 
     // 2. Emit evolution started event
