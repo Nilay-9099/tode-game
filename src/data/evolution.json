@@ -1,0 +1,14 @@
+{
+  "thresholds": {
+    "stage1": 20,
+    "stage2": 50,
+    "apex": 90
+  },
+  "gains": {
+    "swallowBug": 3,
+    "swallowGolden": 2,
+    "spitFusion": 1,
+    "killFusion": 1,
+    "killSlam": 1
+  }
+}

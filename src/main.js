@@ -269,8 +269,8 @@ async function init() {
       ui.updateTadpoles(tadpoleManager);
     }
 
-    // Trigger Roguelite Perk Draft ("Bug Buffet") for waves >= 2
-    if (wave >= 2) {
+    // Trigger Roguelite Perk Draft ("Bug Buffet") for waves >= 2 (if legacy perks enabled)
+    if (GAME_CONSTANTS.LEGACY_PERKS && wave >= 2) {
       gameState.setSubstate(RUN_SUBSTATES.PERK_DRAFT);
       const offers = perkManager.getDraftOffers(3);
       ui.showPerkDraft(offers, (selectedPerk) => {

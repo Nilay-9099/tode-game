@@ -4,6 +4,8 @@
 export const GAME_CONSTANTS = {
   // Course Extension Flag (Spec Section 0.2: Additive only, can toggle extension)
   EXTENSION_ENABLED: true,
+  // v3 Progression: Evolution by Appetite replaces Perk Draft (keep legacy perks behind flag)
+  LEGACY_PERKS: false,
 
   // Arena Dimensions
   ARENA_SIZE: 760,
