@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import { GAME_CONSTANTS } from '../constants.js';
 
-// Procedural soft organic grass texture
+// Procedural soft organic grass texture with zero high-frequency aliasing
 function createGrassTexture(renderer) {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
@@ -15,21 +15,31 @@ function createGrassTexture(renderer) {
   ctx.fillStyle = '#2d6a4f';
   ctx.fillRect(0, 0, 512, 512);
 
-  // Organic soft mottling and grass flecks
-  for (let i = 0; i < 6000; i++) {
+  // Broad, low-frequency organic turf patches (soft gradients)
+  const turfColors = ['#275a43', '#337a5b', '#24533e', '#3c8a66'];
+  for (let i = 0; i < 36; i++) {
     const x = Math.random() * 512;
     const y = Math.random() * 512;
-    const radius = 1 + Math.random() * 2.5;
-    const shade = Math.random();
-    if (shade < 0.4) {
-      ctx.fillStyle = '#40916c';
-    } else if (shade < 0.7) {
-      ctx.fillStyle = '#52b788';
-    } else if (shade < 0.9) {
-      ctx.fillStyle = '#1b4332';
-    } else {
-      ctx.fillStyle = '#74c69d';
-    }
+    const radius = 35 + Math.random() * 65;
+    const grad = ctx.createRadialGradient(x, y, 4, x, y, radius);
+    const color = turfColors[i % turfColors.length];
+    grad.addColorStop(0, color);
+    grad.addColorStop(1, 'rgba(45, 106, 79, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Subtle, soft tonal variations without high-frequency pin-pricks
+  for (let i = 0; i < 120; i++) {
+    const x = Math.random() * 512;
+    const y = Math.random() * 512;
+    const radius = 6 + Math.random() * 12;
+    const grad = ctx.createRadialGradient(x, y, 1, x, y, radius);
+    grad.addColorStop(0, Math.random() > 0.5 ? 'rgba(82, 183, 136, 0.22)' : 'rgba(27, 67, 50, 0.22)');
+    grad.addColorStop(1, 'rgba(45, 106, 79, 0)');
+    ctx.fillStyle = grad;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fill();
@@ -38,7 +48,7 @@ function createGrassTexture(renderer) {
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(14, 14);
+  texture.repeat.set(5, 5); // Low-frequency repeat prevents horizon moiré
   texture.generateMipmaps = true;
   texture.minFilter = THREE.LinearMipmapLinearFilter;
   texture.magFilter = THREE.LinearFilter;
@@ -60,7 +70,6 @@ export function createMap(renderer) {
   const groundGeo = new THREE.PlaneGeometry(arenaSize, arenaSize);
   const groundMat = new THREE.MeshLambertMaterial({
     map: grassTexture,
-    roughness: 0.85,
   });
 
   const ground = new THREE.Mesh(groundGeo, groundMat);
