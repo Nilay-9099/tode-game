@@ -41,6 +41,12 @@ import { AffinityBars } from './ui/AffinityBars.js';
 import { FormChip } from './ui/FormChip.js';
 import { EvolutionManager } from './sim/Evolution.js';
 import { EvolutionBanner } from './ui/EvolutionBanner.js';
+import { FeastManager } from './sim/Feast.js';
+import { RecipeManager } from './sim/Recipes.js';
+import { FormVfx } from './render/FormVfx.js';
+import { WhisperToast } from './ui/WhisperToast.js';
+import { RecipeStrip } from './ui/RecipeStrip.js';
+import { claimRecipeDiscovery } from './net/discoveries.js';
 
 async function init() {
   // 1. Scene & Lighting Setup
@@ -87,6 +93,11 @@ async function init() {
   const formChip = new FormChip();
   const evolutionManager = new EvolutionManager(affinityManager, passivesManager);
   const evolutionBanner = new EvolutionBanner();
+  const feastManager = new FeastManager(scene, particles);
+  const recipeManager = new RecipeManager(feastManager, passivesManager);
+  const formVfx = new FormVfx(scene);
+  const whisperToast = new WhisperToast();
+  const recipeStrip = new RecipeStrip();
 
   eventBus.on(V3_EVENTS.EVOLUTION_STARTED, (formId) => {
     const el = formId.split('_')[0];
@@ -101,6 +112,26 @@ async function init() {
 
   eventBus.on(V3_EVENTS.EVOLUTION_ENDED, () => {
     sounds.playEvolutionLand();
+  });
+
+  eventBus.on(V3_EVENTS.FEAST_STARTED, () => {
+    sounds.playFeastStart();
+    gameCamera.addTrauma(0.4);
+  });
+
+  eventBus.on(V3_EVENTS.FEAST_ENDED, () => {
+    sounds.playFeastEnd();
+  });
+
+  eventBus.on(V3_EVENTS.RECIPE_WHISPER, () => {
+    sounds.playWhisper();
+  });
+
+  eventBus.on(V3_EVENTS.RECIPE_COMPLETED, (recipeId, isFirstEver) => {
+    if (isFirstEver) {
+      sounds.playDiscovery();
+      claimRecipeDiscovery(recipeId).catch(() => {});
+    }
   });
   initFirebase().catch(() => {});
 
@@ -315,6 +346,13 @@ async function init() {
       ui.updateTadpoles(tadpoleManager);
     }
 
+    // Recipe Whisper from the Old Toad Sage at intermission (v3 Spec Section 3.3)
+    if (wave >= 2) {
+      setTimeout(() => {
+        recipeManager.selectWhisper(wave, Math.floor(score));
+      }, 1200);
+    }
+
     // Trigger Roguelite Perk Draft ("Bug Buffet") for waves >= 2 (if legacy perks enabled)
     if (GAME_CONSTANTS.LEGACY_PERKS && wave >= 2) {
       gameState.setSubstate(RUN_SUBSTATES.PERK_DRAFT);
@@ -415,6 +453,11 @@ async function init() {
     formChip.reset();
     evolutionManager.reset();
     evolutionBanner.hide();
+    feastManager.reset();
+    recipeManager.reset();
+    formVfx.onFeastEnded();
+    whisperToast.hide();
+    recipeStrip.reset();
     tadpoleManager.reset();
     enemyManager.clearAll();
     bugManager.clear();
@@ -491,6 +534,18 @@ async function init() {
     window.__tode.showForm = (id) => {
       passivesManager.addForm(id);
       console.log(`🐸 [Debug] Applied form: ${id}`);
+    };
+    window.__tode.cook = (id) => {
+      recipeManager.cookRecipe(id);
+      console.log(`🍲 [Debug] Cooked recipe: ${id}`);
+    };
+    window.__tode.history = () => {
+      console.log('📜 [Debug] History:', recipeManager.history);
+      return recipeManager.history;
+    };
+    window.__tode.whisper = () => {
+      const w = recipeManager.selectWhisper(wave, Math.floor(score));
+      console.log('🧙‍♂️ [Debug] Whisper:', w);
     };
     window.__tode.winNow = () => {
       ui.showVictoryBanner('🏆 VICTORY (DEBUG)', 'All Tadpoles Protected!');
@@ -887,6 +942,9 @@ async function init() {
     frogRig.update(delta);
     passivesManager.update(delta, player, enemyManager.enemies, onEnemyKilled);
     evolutionManager.update(delta, player);
+    feastManager.update(delta, player, enemyManager.enemies, passivesManager, onEnemyKilled);
+    recipeManager.update(delta);
+    formVfx.update(player.group.position);
 
     // Particles & Render
     particles.update(delta);

@@ -3,6 +3,8 @@
 
 import { eventBus } from '../eventBus.js';
 import codexData from '../data/codex.json';
+import formsData from '../data/forms.json';
+import recipesData from '../data/recipes.json';
 import { saveManager } from '../core/Save.js';
 
 export class UIManager {
@@ -482,50 +484,151 @@ export class UIManager {
 
   renderCodex() {
     if (!this.codexGrid) return;
-    const discovered = saveManager.get('discoveredCodex', []);
-    const entries = codexData.entries || [];
-    if (this.codexCount) {
-      this.codexCount.textContent = discovered.length.toString();
+    if (!this.codexActiveTab) this.codexActiveTab = 'fusions';
+
+    // Ensure Tab Header Bar exists
+    let tabBar = document.getElementById('codexTabBar');
+    if (!tabBar && this.codexModal) {
+      tabBar = document.createElement('div');
+      tabBar.id = 'codexTabBar';
+      tabBar.style.cssText = 'display:flex; justify-content:center; gap:12px; margin-bottom:16px;';
+      const modalContent = this.codexGrid.parentElement;
+      if (modalContent) {
+        modalContent.insertBefore(tabBar, this.codexGrid);
+      }
     }
+
+    if (tabBar) {
+      tabBar.innerHTML = `
+        <button id="tabFusions" style="background:${this.codexActiveTab === 'fusions' ? '#00f5d4' : 'rgba(255,255,255,0.1)'}; color:${this.codexActiveTab === 'fusions' ? '#000' : '#fff'}; border:none; border-radius:8px; padding:6px 14px; font-weight:bold; cursor:pointer;">🍲 Fusions (9)</button>
+        <button id="tabForms" style="background:${this.codexActiveTab === 'forms' ? '#00f5d4' : 'rgba(255,255,255,0.1)'}; color:${this.codexActiveTab === 'forms' ? '#000' : '#fff'}; border:none; border-radius:8px; padding:6px 14px; font-weight:bold; cursor:pointer;">🐸 Forms (12)</button>
+        <button id="tabRecipes" style="background:${this.codexActiveTab === 'recipes' ? '#00f5d4' : 'rgba(255,255,255,0.1)'}; color:${this.codexActiveTab === 'recipes' ? '#000' : '#fff'}; border:none; border-radius:8px; padding:6px 14px; font-weight:bold; cursor:pointer;">📜 Secret Recipes (8)</button>
+      `;
+
+      tabBar.querySelector('#tabFusions').addEventListener('click', () => {
+        this.codexActiveTab = 'fusions';
+        this.renderCodex();
+      });
+      tabBar.querySelector('#tabForms').addEventListener('click', () => {
+        this.codexActiveTab = 'forms';
+        this.renderCodex();
+      });
+      tabBar.querySelector('#tabRecipes').addEventListener('click', () => {
+        this.codexActiveTab = 'recipes';
+        this.renderCodex();
+      });
+    }
+
     this.codexGrid.innerHTML = '';
 
-    entries.forEach((entry) => {
-      const isUnlocked = discovered.includes(entry.id);
-      const card = document.createElement('div');
-      card.className = `codex-card ${isUnlocked ? 'unlocked' : 'locked'}`;
-      if (isUnlocked && entry.color) {
-        card.style.borderColor = entry.color;
+    if (this.codexActiveTab === 'fusions') {
+      const discovered = saveManager.get('discoveredCodex', []);
+      const entries = codexData.entries || [];
+      if (this.codexCount) {
+        this.codexCount.textContent = discovered.length.toString();
       }
 
-      if (isUnlocked) {
-        const recipeText = entry.recipe.join(' + ');
+      entries.forEach((entry) => {
+        const isUnlocked = discovered.includes(entry.id);
+        const card = document.createElement('div');
+        card.className = `codex-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+        if (isUnlocked && entry.color) {
+          card.style.borderColor = entry.color;
+        }
+
+        if (isUnlocked) {
+          const recipeText = entry.recipe.join(' + ');
+          card.innerHTML = `
+            <div class="codex-card-top">
+              <div class="codex-card-icon" style="border: 1.5px solid ${entry.color || '#fff'}">${entry.icon}</div>
+              <div class="codex-card-info">
+                <div class="codex-card-cat">${entry.category}</div>
+                <div class="codex-card-name" style="color:${entry.color || '#fff'}">${entry.name}</div>
+              </div>
+            </div>
+            <div><span class="codex-recipe-badge">Recipe: ${recipeText}</span></div>
+            <div class="codex-card-desc">${entry.hint}</div>
+            <div class="codex-card-hint">“${entry.lore}”</div>
+          `;
+        } else {
+          card.innerHTML = `
+            <div class="codex-card-top">
+              <div class="codex-card-icon">🔒</div>
+              <div class="codex-card-info">
+                <div class="codex-card-cat">${entry.category}</div>
+                <div class="codex-card-name">???</div>
+              </div>
+            </div>
+            <div><span class="codex-recipe-badge">Recipe: Unknown</span></div>
+            <div class="codex-card-hint">💡 Hint: ${entry.hint}</div>
+          `;
+        }
+        this.codexGrid.appendChild(card);
+      });
+    } else if (this.codexActiveTab === 'forms') {
+      Object.values(formsData).forEach((form) => {
+        const card = document.createElement('div');
+        card.className = 'codex-card unlocked';
+        const colors = { ember: '#ff5400', frost: '#00f5d4', spark: '#fee440', hybrid: '#f72585' };
+        const accent = colors[form.element] || '#00f5d4';
+        card.style.borderColor = accent;
+
+        const reqText = Object.entries(form.requires).map(([k, v]) => `${k.toUpperCase()} ${v}`).join(' & ');
         card.innerHTML = `
           <div class="codex-card-top">
-            <div class="codex-card-icon" style="border: 1.5px solid ${entry.color || '#fff'}">${entry.icon}</div>
+            <div class="codex-card-icon" style="border: 1.5px solid ${accent}">${form.element === 'ember' ? '🔥' : form.element === 'frost' ? '❄️' : form.element === 'spark' ? '⚡' : '✨'}</div>
             <div class="codex-card-info">
-              <div class="codex-card-cat">${entry.category}</div>
-              <div class="codex-card-name" style="color:${entry.color || '#fff'}">${entry.name}</div>
+              <div class="codex-card-cat">Stage ${form.stage || 1} ${form.element.toUpperCase()}</div>
+              <div class="codex-card-name" style="color:${accent}">${form.name}</div>
             </div>
           </div>
-          <div><span class="codex-recipe-badge">Recipe: ${recipeText}</span></div>
-          <div class="codex-card-desc">${entry.hint}</div>
-          <div class="codex-card-hint">“${entry.lore}”</div>
+          <div><span class="codex-recipe-badge" style="border-color:${accent}">Requires: ${reqText}</span></div>
+          <div class="codex-card-desc">${form.banner?.subtitle || ''}</div>
         `;
-      } else {
-        card.innerHTML = `
-          <div class="codex-card-top">
-            <div class="codex-card-icon">🔒</div>
-            <div class="codex-card-info">
-              <div class="codex-card-cat">${entry.category}</div>
-              <div class="codex-card-name">???</div>
+        this.codexGrid.appendChild(card);
+      });
+    } else if (this.codexActiveTab === 'recipes') {
+      let savedRecipes = [];
+      try {
+        savedRecipes = JSON.parse(localStorage.getItem('tode_recipes_discovered') || '[]');
+      } catch (e) {}
+
+      Object.values(recipesData).forEach((r) => {
+        const isUnlocked = savedRecipes.includes(r.id);
+        const card = document.createElement('div');
+        card.className = `codex-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+        const accent = '#ffd166';
+        if (isUnlocked) card.style.borderColor = accent;
+
+        if (isUnlocked) {
+          const seqText = r.sequence.map((s) => s.toUpperCase()).join(' + ');
+          card.innerHTML = `
+            <div class="codex-card-top">
+              <div class="codex-card-icon" style="border: 1.5px solid ${accent}">🍲</div>
+              <div class="codex-card-info">
+                <div class="codex-card-cat">Secret Feast (18s)</div>
+                <div class="codex-card-name" style="color:${accent}">${r.name}</div>
+              </div>
             </div>
-          </div>
-          <div><span class="codex-recipe-badge">Recipe: Unknown</span></div>
-          <div class="codex-card-hint">💡 Hint: ${entry.hint}</div>
-        `;
-      }
-      this.codexGrid.appendChild(card);
-    });
+            <div><span class="codex-recipe-badge" style="border-color:${accent}">Sequence: ${seqText}</span></div>
+            <div class="codex-card-hint">“${r.whisper}”</div>
+          `;
+        } else {
+          card.innerHTML = `
+            <div class="codex-card-top">
+              <div class="codex-card-icon">🔒</div>
+              <div class="codex-card-info">
+                <div class="codex-card-cat">Secret Recipe</div>
+                <div class="codex-card-name">???</div>
+              </div>
+            </div>
+            <div><span class="codex-recipe-badge">Sequence: [ ? ] [ ? ] [ ? ]</span></div>
+            <div class="codex-card-hint">🧙‍♂️ Whisper: “${r.whisper}”</div>
+          `;
+        }
+        this.codexGrid.appendChild(card);
+      });
+    }
   }
 
   openCodex() {

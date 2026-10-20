@@ -663,6 +663,79 @@ class SoundEngine {
     osc.stop(t + 0.25);
   }
 
+  // 14j. Feast Start Stinger (Grand culinary fanfare - v3 Spec Section 8)
+  playFeastStart() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const chords = [392.0, 523.25, 659.25, 783.99]; // G4, C5, E5, G5
+    const t = this.ctx.currentTime;
+    chords.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, t);
+
+      gain.gain.setValueAtTime(0.25, t);
+      gain.gain.exponentialRampToValueAtTime(0.005, t + 0.6);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(t);
+      osc.stop(t + 0.6);
+    });
+  }
+
+  // 14k. Feast End Sound
+  playFeastEnd() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, t);
+    osc.frequency.exponentialRampToValueAtTime(220, t + 0.3);
+
+    gain.gain.setValueAtTime(0.2, t);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(t);
+    osc.stop(t + 0.3);
+  }
+
+  // 14l. Sage Whisper Chime (Gentle wind-chime)
+  playWhisper() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const freqs = [880, 1174.66, 1318.51, 1760]; // A5, D6, E6, A6
+    const t = this.ctx.currentTime;
+    freqs.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const delay = idx * 0.07;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t + delay);
+
+      gain.gain.setValueAtTime(0.2, t + delay);
+      gain.gain.exponentialRampToValueAtTime(0.005, t + delay + 0.4);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(t + delay);
+      osc.stop(t + delay + 0.4);
+    });
+  }
+
   // 14d. Enemy Telegraph Alert (Warning buzz)
   playTelegraph() {
     if (this.isMuted) return;

@@ -53,6 +53,14 @@ export async function initFirebase() {
   return { isOfflineMode, currentUser };
 }
 
+export function getFirebaseDb() {
+  return db;
+}
+
+export function getFirebaseAuth() {
+  return auth;
+}
+
 // 1. Submit Run Score
 export async function submitScore({ name, score, wave, mode = 'normal', seed = '', streak = 0 }) {
   const payload = {
