@@ -1,1 +1,237 @@
-{}
+{
+  "ember_1": {
+    "id": "ember_1",
+    "element": "ember",
+    "stage": 1,
+    "name": "Cinder Cheeks",
+    "requires": { "ember": 20 },
+    "visual": {
+      "tint": { "belly": "#ff9e54", "back": "#4a7c29" },
+      "emissive": [{ "anchor": "cheeks", "color": "#ff5400", "intensity": 1.4 }],
+      "attachments": ["cinderFreckles"],
+      "particles": ["cinderDrift"],
+      "idle": ["warmGlow"]
+    },
+    "passives": [
+      { "type": "spitTrail", "duration": 1.5, "status": "burn", "damage": 0.5 }
+    ],
+    "banner": { "title": "STAGE 1: CINDER CHEEKS", "subtitle": "Spit leaves a lingering trail of embers" },
+    "codexId": "form-ember-1"
+  },
+  "ember_2": {
+    "id": "ember_2",
+    "element": "ember",
+    "stage": 2,
+    "name": "Kiln Belly",
+    "requires": { "ember": 50 },
+    "visual": {
+      "tint": { "belly": "#ff8a3d", "back": "#5a8f3a" },
+      "emissive": [{ "anchor": "belly", "color": "#ff6a1a", "intensity": 1.8 }],
+      "attachments": ["flameCrest", "bellyVents"],
+      "particles": ["emberDrift"],
+      "idle": ["flameFlicker"]
+    },
+    "passives": [
+      { "type": "snatchStatus", "status": "burn", "duration": 2.0 },
+      { "type": "burpDamage", "radius": 75, "status": "burn", "damage": 1.5 }
+    ],
+    "banner": { "title": "STAGE 2: KILN BELLY", "subtitle": "Your tongue ignites prey and burps erupt into flame" },
+    "codexId": "form-ember-2"
+  },
+  "ember_3": {
+    "id": "ember_3",
+    "element": "ember",
+    "stage": 3,
+    "name": "Magma Toad",
+    "requires": { "ember": 90 },
+    "visual": {
+      "tint": { "belly": "#d90429", "back": "#2b2d42" },
+      "emissive": [{ "anchor": "back", "color": "#ff1e00", "intensity": 2.5 }, { "anchor": "tongueTip", "color": "#ffea00", "intensity": 2.0 }],
+      "attachments": ["lavaCrust", "magmaHorns"],
+      "particles": ["magmaPlume"],
+      "idle": ["lavaPulse"]
+    },
+    "passives": [
+      { "type": "fusionMod", "recipe": "ember+ember", "mod": "inferno_split_3" },
+      { "type": "slamVariant", "variant": "eruption", "radius": 220, "burnDuration": 4.0 }
+    ],
+    "banner": { "title": "APEX: MAGMA TOAD", "subtitle": "Inferno splits into 3 fireballs; Meteor Slam erupts into lava" },
+    "codexId": "form-ember-3"
+  },
+  "frost_1": {
+    "id": "frost_1",
+    "element": "frost",
+    "stage": 1,
+    "name": "Frosted Skin",
+    "requires": { "frost": 20 },
+    "visual": {
+      "tint": { "belly": "#cbf3f0", "back": "#3a7d44" },
+      "emissive": [{ "anchor": "legs", "color": "#00f5d4", "intensity": 1.2 }],
+      "attachments": ["frostPatches"],
+      "particles": ["breathPuff"],
+      "idle": ["chillMist"]
+    },
+    "passives": [
+      { "type": "hopTrail", "duration": 2.0, "status": "slow", "slowFactor": 0.8 }
+    ],
+    "banner": { "title": "STAGE 1: FROSTED SKIN", "subtitle": "Hops leave frosty footprints that slow enemies by 20%" },
+    "codexId": "form-frost-1"
+  },
+  "frost_2": {
+    "id": "frost_2",
+    "element": "frost",
+    "stage": 2,
+    "name": "Ice Crest",
+    "requires": { "frost": 50 },
+    "visual": {
+      "tint": { "belly": "#a2d2ff", "back": "#2ec4b6" },
+      "emissive": [{ "anchor": "head", "color": "#00b4d8", "intensity": 1.8 }],
+      "attachments": ["iceCrestSpikes", "backCrystals"],
+      "particles": ["frostMist"],
+      "idle": ["crystalGlint"]
+    },
+    "passives": [
+      { "type": "snatchStatus", "status": "slow", "duration": 2.0 },
+      { "type": "statusAmp", "targetStatus": "frozen", "damageMultiplier": 1.2 }
+    ],
+    "banner": { "title": "STAGE 2: ICE CREST", "subtitle": "Tongue slows enemies; frozen foes take +20% damage" },
+    "codexId": "form-frost-2"
+  },
+  "frost_3": {
+    "id": "frost_3",
+    "element": "frost",
+    "stage": 3,
+    "name": "Glacier Toad",
+    "requires": { "frost": 90 },
+    "visual": {
+      "tint": { "belly": "#e0fbfc", "back": "#1b4965" },
+      "emissive": [{ "anchor": "back", "color": "#90e0ef", "intensity": 2.6 }],
+      "attachments": ["glacierPlates", "crystalCrown"],
+      "particles": ["blizzardSwirl"],
+      "idle": ["iceShimmer"]
+    },
+    "passives": [
+      { "type": "shatterShards", "count": 5, "damage": 1.5 },
+      { "type": "slamVariant", "variant": "ice_field", "radius": 210, "freezeDuration": 4.5 }
+    ],
+    "banner": { "title": "APEX: GLACIER TOAD", "subtitle": "Shatters burst into 5 lethal shards; Slam freezes entire arena" },
+    "codexId": "form-frost-3"
+  },
+  "spark_1": {
+    "id": "spark_1",
+    "element": "spark",
+    "stage": 1,
+    "name": "Static Skin",
+    "requires": { "spark": 20 },
+    "visual": {
+      "tint": { "belly": "#fcf6bd", "back": "#4b7f52" },
+      "emissive": [{ "anchor": "back", "color": "#fee440", "intensity": 1.3 }],
+      "attachments": ["staticStripes"],
+      "particles": ["sparkPops"],
+      "idle": ["staticHum"]
+    },
+    "passives": [
+      { "type": "hopTrail", "duration": 0.5, "status": "zap", "zapRadius": 45, "damage": 0.5 }
+    ],
+    "banner": { "title": "STAGE 1: STATIC SKIN", "subtitle": "Hops emit electrical static zapping nearby invaders" },
+    "codexId": "form-spark-1"
+  },
+  "spark_2": {
+    "id": "spark_2",
+    "element": "spark",
+    "stage": 2,
+    "name": "Live Wire",
+    "requires": { "spark": 50 },
+    "visual": {
+      "tint": { "belly": "#ffea00", "back": "#0077b6" },
+      "emissive": [{ "anchor": "back", "color": "#ffb703", "intensity": 2.0 }],
+      "attachments": ["wireAntennae", "crackleSpines"],
+      "particles": ["voltageArcs"],
+      "idle": ["sparkCrackle"]
+    },
+    "passives": [
+      { "type": "snatchExtraTarget", "count": 1 },
+      { "type": "chainBonus", "extraJumps": 1 }
+    ],
+    "banner": { "title": "STAGE 2: LIVE WIRE", "subtitle": "Tongue snatches chain to +1 extra target; lightning gains +1 arc" },
+    "codexId": "form-spark-2"
+  },
+  "spark_3": {
+    "id": "spark_3",
+    "element": "spark",
+    "stage": 3,
+    "name": "Storm Toad",
+    "requires": { "spark": 90 },
+    "visual": {
+      "tint": { "belly": "#fff3b0", "back": "#10002b" },
+      "emissive": [{ "anchor": "eyes", "color": "#00f0ff", "intensity": 3.0 }],
+      "attachments": ["thunderCrown", "sparkOrbiterRing"],
+      "particles": ["lightningStorm"],
+      "idle": ["plasmaAura"]
+    },
+    "passives": [
+      { "type": "chainBonus", "extraJumps": 2 },
+      { "type": "orbitingMotes", "count": 3, "damage": 1.0, "orbitRadius": 55 },
+      { "type": "slamVariant", "variant": "storm", "bolts": 6, "damage": 3.0 }
+    ],
+    "banner": { "title": "APEX: STORM TOAD", "subtitle": "3 orbiting spark motes zap attackers; lightning gains +2 jumps" },
+    "codexId": "form-spark-3"
+  },
+  "steam": {
+    "id": "steam",
+    "element": "hybrid",
+    "stage": 2,
+    "name": "Steam Toad",
+    "requires": { "ember": 50, "frost": 50 },
+    "visual": {
+      "tint": { "belly": "#f4f1de", "back": "#3d5a80" },
+      "emissive": [{ "anchor": "belly", "color": "#e0fbfc", "intensity": 2.2 }],
+      "attachments": ["steamValves", "foggedGoggles"],
+      "particles": ["steamGeyser"],
+      "idle": ["steamHiss"]
+    },
+    "passives": [
+      { "type": "aura", "radius": 105, "status": "blind", "dps": 0.5 }
+    ],
+    "banner": { "title": "HYBRID: STEAM TOAD", "subtitle": "Thermal steam aura blinds and sears all pests near Tode" },
+    "codexId": "form-hybrid-steam"
+  },
+  "plasma": {
+    "id": "plasma",
+    "element": "hybrid",
+    "stage": 2,
+    "name": "Plasma Toad",
+    "requires": { "ember": 50, "spark": 50 },
+    "visual": {
+      "tint": { "belly": "#ff70a6", "back": "#7209b7" },
+      "emissive": [{ "anchor": "back", "color": "#f72585", "intensity": 2.4 }],
+      "attachments": ["plasmaWings", "fusionCore"],
+      "particles": ["plasmaSparks"],
+      "idle": ["plasmaPulse"]
+    },
+    "passives": [
+      { "type": "orbitingMotes", "count": 2, "damage": 2.0, "orbitRadius": 65 }
+    ],
+    "banner": { "title": "HYBRID: PLASMA TOAD", "subtitle": "Twin high-voltage plasma motes incinerate passing pests" },
+    "codexId": "form-hybrid-plasma"
+  },
+  "aurora": {
+    "id": "aurora",
+    "element": "hybrid",
+    "stage": 2,
+    "name": "Aurora Toad",
+    "requires": { "frost": 50, "spark": 50 },
+    "visual": {
+      "tint": { "belly": "#b8f2e6", "back": "#5e548e" },
+      "emissive": [{ "anchor": "back", "color": "#48cae4", "intensity": 2.4 }],
+      "attachments": ["auroraRibbons", "prismaticAntennae"],
+      "particles": ["auroraCurtain"],
+      "idle": ["auroraWave"]
+    },
+    "passives": [
+      { "type": "shatterShards", "count": 5, "damage": 1.2, "chainArc": true }
+    ],
+    "banner": { "title": "HYBRID: AURORA TOAD", "subtitle": "Shattering ice releases 5 crystal shards that chain-arc electricity" },
+    "codexId": "form-hybrid-aurora"
+  }
+}

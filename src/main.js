@@ -32,6 +32,10 @@ import { FLAVOR_BUGS, ENEMY_CONFIGS } from './constants.js';
 import { perkManager } from './components/Perks.js';
 import wavesData from './data/waves.json';
 import { PostFX } from './components/PostFX.js';
+import { affinityManager } from './sim/Affinity.js';
+import { FrogRig } from './render/FrogRig.js';
+import { AnimDirector } from './anim/AnimDirector.js';
+import { tweenManager } from './anim/Tween.js';
 
 async function init() {
   // 1. Scene & Lighting Setup
@@ -61,6 +65,14 @@ async function init() {
   const renderer = createRenderer();
   const postFX = new PostFX(renderer, scene, gameCamera.camera);
 
+  // Animation Lab (?lab=1) Hook (v3 Spec Section 6.4)
+  if (window.location.search.includes('lab=1')) {
+    const { AnimationLab } = await import('./anim/Lab.js');
+    new AnimationLab(renderer);
+    console.log('🔬 Animation Lab launched (?lab=1)');
+    return;
+  }
+
   // 3. Dynamic Systems
   const particles = new ParticleSystem(scene);
   const atmosphere = new AtmosphereManager(scene, ambientLight, dirLight);
@@ -84,7 +96,10 @@ async function init() {
   scene.add(player.slamMesh);
 
   // 6. Gameplay Systems
+  const frogRig = new FrogRig(player.group, player.model);
   const tongue = new TongueSystem(scene);
+  const animDirector = new AnimDirector(sounds, gameCamera, particles);
+  animDirector.setTargets({ tode: frogRig.getAnimTargets(), tongue: tongue });
   const stomach = new StomachSystem();
   const fusionSystem = new FusionSystem(scene, particles);
   const bugManager = new BugManager(scene, particles);
@@ -363,6 +378,7 @@ async function init() {
     tongue.reset();
     stomach.slots = [];
     stomach.resetStreak();
+    affinityManager.reset();
     tadpoleManager.reset();
     enemyManager.clearAll();
     bugManager.clear();
@@ -423,6 +439,16 @@ async function init() {
         ui.showVictoryBanner('BUFFET CONSUMED!', `Acquired: ${selectedPerk.name}`);
       });
       console.log('🐛 [Debug] Triggered Perk Draft Modal');
+    };
+    window.__tode.setAffinity = (el, v) => {
+      affinityManager.setAffinity(el, Number(v) || 0);
+      console.log(`🧪 [Debug] Affinity ${el} set to ${v}`);
+    };
+    window.__tode.evolve = (el, stage = 1) => {
+      const thresholds = { 1: 20, 2: 50, 3: 90 };
+      const val = thresholds[stage] || 20;
+      affinityManager.setAffinity(el, val);
+      console.log(`🧬 [Debug] Evolved ${el} to Stage ${stage} (${val} affinity)`);
     };
     window.__tode.winNow = () => {
       ui.showVictoryBanner('🏆 VICTORY (DEBUG)', 'All Tadpoles Protected!');
@@ -812,6 +838,11 @@ async function init() {
 
     // Camera follow & Trauma shake
     gameCamera.update(delta, player.group.position);
+
+    // Animation & Procedural Systems
+    tweenManager.update(delta, delta);
+    animDirector.update(delta);
+    frogRig.update(delta);
 
     // Particles & Render
     particles.update(delta);

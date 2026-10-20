@@ -1,1 +1,146 @@
-{}
+{
+  "bonfire": {
+    "id": "bonfire",
+    "name": "Bonfire Feast",
+    "sequence": ["ember", "ember", "ember"],
+    "ordered": true,
+    "feast": {
+      "duration": 18,
+      "effects": [
+        { "type": "spitOverride", "projectile": "inferno_mega", "damage": 4.0 },
+        { "type": "hopTrail", "status": "burning_ground", "duration": 3.0, "damage": 1.0 },
+        { "type": "immune", "status": "burn" }
+      ]
+    },
+    "signature": {
+      "passive": { "type": "hopTrail", "status": "burning_ground", "duration": 1.0, "damage": 0.4 }
+    },
+    "whisper": "Three embers stoke the sacred flame: the toad becomes a roaring pyre.",
+    "codexId": "recipe-bonfire"
+  },
+  "coldsnap": {
+    "id": "coldsnap",
+    "name": "Cold Snap",
+    "sequence": ["frost", "frost", "frost"],
+    "ordered": true,
+    "feast": {
+      "duration": 18,
+      "effects": [
+        { "type": "globalEnemySlow", "factor": 0.6 },
+        { "type": "freezeDurationBonus", "seconds": 1.5 }
+      ]
+    },
+    "signature": {
+      "passive": { "type": "globalEnemySlow", "factor": 0.9 }
+    },
+    "whisper": "Thrice kissed by winter's frost: the garden shivers to a crawl.",
+    "codexId": "recipe-coldsnap"
+  },
+  "thunder": {
+    "id": "thunder",
+    "name": "Thunder Meal",
+    "sequence": ["spark", "spark", "spark"],
+    "ordered": true,
+    "feast": {
+      "duration": 18,
+      "effects": [
+        { "type": "autoLightning", "interval": 1.2, "damage": 2.5, "range": 220 }
+      ]
+    },
+    "signature": {
+      "passive": { "type": "autoLightning", "interval": 3.5, "damage": 1.5, "range": 160 }
+    },
+    "whisper": "Three sparks ignite the storm within: thunder strikes without a cloud.",
+    "codexId": "recipe-thunder"
+  },
+  "sauna": {
+    "id": "sauna",
+    "name": "Steam Sauna",
+    "sequence": ["ember", "frost", "ember"],
+    "ordered": true,
+    "feast": {
+      "duration": 18,
+      "effects": [
+        { "type": "aura", "radius": 120, "status": "blind", "dps": 0.5 }
+      ]
+    },
+    "signature": {
+      "passive": { "type": "aura", "radius": 60, "status": "blind", "dps": 0.0 }
+    },
+    "whisper": "Hot kiss, cold kiss, hot kiss again: the toad sweats in a cloud.",
+    "codexId": "recipe-sauna"
+  },
+  "slush": {
+    "id": "slush",
+    "name": "Slush Puppy",
+    "sequence": ["frost", "ember", "frost"],
+    "ordered": true,
+    "feast": {
+      "duration": 18,
+      "effects": [
+        { "type": "hopTrail", "status": "slush_puddle", "slowFactor": 0.5, "duration": 3.0 },
+        { "type": "shatterScoreMult", "multiplier": 3.0 }
+      ]
+    },
+    "signature": {
+      "passive": { "type": "shatterScoreMult", "multiplier": 1.5 }
+    },
+    "whisper": "Ice, fire, ice once more: sweet slush coats the lilypads.",
+    "codexId": "recipe-slush"
+  },
+  "fireworks": {
+    "id": "fireworks",
+    "name": "Fireworks",
+    "sequence": ["spark", "ember", "spark"],
+    "ordered": true,
+    "feast": {
+      "duration": 18,
+      "effects": [
+        { "type": "spitDetonate", "burstCount": 6, "radius": 120, "damage": 2.0 }
+      ]
+    },
+    "signature": {
+      "passive": { "type": "spitDetonate", "burstCount": 3, "radius": 70, "damage": 1.0 }
+    },
+    "whisper": "Spark, flame, spark in flight: the pond illuminates the night.",
+    "codexId": "recipe-fireworks"
+  },
+  "rainbow": {
+    "id": "rainbow",
+    "name": "Rainbow Tasting Menu",
+    "sequence": ["ember", "frost", "spark"],
+    "ordered": false,
+    "feast": {
+      "duration": 18,
+      "effects": [
+        { "type": "spitCycleMix", "active": true },
+        { "type": "streakLevelBonus", "bonus": 1 }
+      ]
+    },
+    "signature": {
+      "passive": { "type": "streakLevelBonus", "bonus": 1 }
+    },
+    "whisper": "Fire, frost, and storm aligned: a gourmet feast of every kind.",
+    "codexId": "recipe-rainbow"
+  },
+  "banquet": {
+    "id": "banquet",
+    "name": "Golden Banquet",
+    "sequence": ["golden", "golden", "golden"],
+    "ordered": true,
+    "feast": {
+      "duration": 8,
+      "effects": [
+        { "type": "restoreHeart", "count": 1 },
+        { "type": "restoreTadpole", "count": 1 },
+        { "type": "bonusScore", "points": 1000 },
+        { "type": "invulnerability", "duration": 8 }
+      ]
+    },
+    "signature": {
+      "passive": { "type": "bonusScoreMultiplier", "multiplier": 1.1 }
+    },
+    "whisper": "Three golden wings descend from above: the sacred banquet restores the pond.",
+    "codexId": "recipe-banquet"
+  }
+}

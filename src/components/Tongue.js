@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { GAME_CONSTANTS } from '../constants.js';
 import { sounds } from './Audio.js';
+import { TongueRope } from '../render/TongueRope.js';
 
 export class TongueSystem {
   constructor(scene) {
@@ -25,7 +26,10 @@ export class TongueSystem {
     this.hitTarget = null;
     this.hitType = null; // 'bug' or 'enemy' or 'boss_fuel'
 
-    // 3D Tongue Mesh
+    // Procedural Spline Rope Tongue (v3 Spec Section 7.2)
+    this.rope = new TongueRope(this.scene);
+
+    // Legacy rigid mesh kept hidden as fallback
     const tongueGeo = new THREE.CylinderGeometry(1.6, 2.4, 1, 8);
     tongueGeo.rotateX(Math.PI / 2);
     const tongueMat = new THREE.MeshPhongMaterial({
@@ -35,15 +39,12 @@ export class TongueSystem {
       shininess: 90,
     });
     this.mesh = new THREE.Mesh(tongueGeo, tongueMat);
-    this.mesh.up.set(0, 0, 1);
     this.mesh.visible = false;
     this.scene.add(this.mesh);
 
-    // Sticky tip orb
     const tipGeo = new THREE.SphereGeometry(3.5, 8, 8);
     const tipMat = new THREE.MeshPhongMaterial({ color: 0xff0055, shininess: 100 });
     this.tipMesh = new THREE.Mesh(tipGeo, tipMat);
-    this.tipMesh.up.set(0, 0, 1);
     this.tipMesh.visible = false;
     this.scene.add(this.tipMesh);
   }
@@ -54,6 +55,7 @@ export class TongueSystem {
     this.timer = 0;
     this.hitTarget = null;
     this.hitType = null;
+    if (this.rope) this.rope.hide();
     if (this.mesh) this.mesh.visible = false;
     if (this.tipMesh) this.tipMesh.visible = false;
   }
@@ -188,6 +190,7 @@ export class TongueSystem {
     }
 
     if (this.state === 'idle') {
+      if (this.rope) this.rope.hide();
       this.mesh.visible = false;
       this.tipMesh.visible = false;
       return;
@@ -251,19 +254,9 @@ export class TongueSystem {
 
     // Guard against collinear/zero distance NaN matrix calculation
     this.currentTip.lerpVectors(this.startPos, this.targetPos, Math.max(0, Math.min(1, this.progress)));
-    this.midPoint.addVectors(this.startPos, this.currentTip).multiplyScalar(0.5);
-    const length = this.startPos.distanceTo(this.currentTip);
 
-    this.tipMesh.position.copy(this.currentTip);
-    this.tipMesh.visible = true;
-
-    if (length > 2.5) {
-      this.mesh.position.copy(this.midPoint);
-      this.mesh.scale.set(1, 1, length);
-      this.mesh.lookAt(this.currentTip);
-      this.mesh.visible = true;
-    } else {
-      this.mesh.visible = false;
+    if (this.rope) {
+      this.rope.updateRope(this.startPos, this.currentTip, this.progress, delta);
     }
   }
 }

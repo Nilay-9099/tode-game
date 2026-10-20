@@ -205,6 +205,7 @@ export async function createPlayer() {
       this.moveTarget.set(targetX, targetY);
 
       sounds.playJump();
+      eventBus.emit('player:hop');
     },
 
     triggerShockwave(enemies, particles, onKill) {

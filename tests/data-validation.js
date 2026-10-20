@@ -95,6 +95,79 @@ function validate() {
     errors++;
   }
 
+  // 7. Validate evolution.json (v3 Spec Section 2.1)
+  const evolution = JSON.parse(fs.readFileSync(path.join(dataDir, 'evolution.json'), 'utf8'));
+  if (!evolution.thresholds || typeof evolution.thresholds.stage1 !== 'number') {
+    console.error('❌ evolution.json missing thresholds object');
+    errors++;
+  } else {
+    const { stage1, stage2, apex } = evolution.thresholds;
+    if (!(stage1 < stage2 && stage2 < apex)) {
+      console.error(`❌ evolution.json thresholds must be strictly ascending: ${stage1} < ${stage2} < ${apex}`);
+      errors++;
+    }
+  }
+
+  // 8. Validate forms.json (v3 Spec Section 2.2 & 2.3)
+  const forms = JSON.parse(fs.readFileSync(path.join(dataDir, 'forms.json'), 'utf8'));
+  const validPassiveTypes = new Set([
+    'spitTrail', 'hopTrail', 'snatchStatus', 'snatchExtraTarget',
+    'burpDamage', 'aura', 'chainBonus', 'shatterShards',
+    'slamVariant', 'statusAmp', 'fusionMod', 'orbitingMotes'
+  ]);
+  const formKeys = Object.keys(forms);
+  if (formKeys.length < 12) {
+    console.error(`❌ forms.json expected 12 forms, found ${formKeys.length}`);
+    errors++;
+  }
+  for (const [key, form] of Object.entries(forms)) {
+    if (form.id !== key) {
+      console.error(`❌ form key mismatch: "${key}" vs id "${form.id}"`);
+      errors++;
+    }
+    if (!form.requires || typeof form.requires !== 'object') {
+      console.error(`❌ form "${key}" missing valid requires object`);
+      errors++;
+    }
+    if (!Array.isArray(form.passives)) {
+      console.error(`❌ form "${key}" missing passives array`);
+      errors++;
+    } else {
+      for (const p of form.passives) {
+        if (!validPassiveTypes.has(p.type)) {
+          console.error(`❌ form "${key}" has unknown passive type "${p.type}"`);
+          errors++;
+        }
+      }
+    }
+  }
+
+  // 9. Validate recipes.json (v3 Spec Section 3.2)
+  const recipes = JSON.parse(fs.readFileSync(path.join(dataDir, 'recipes.json'), 'utf8'));
+  const recipeKeys = Object.keys(recipes);
+  if (recipeKeys.length < 8) {
+    console.error(`❌ recipes.json expected 8 recipes, found ${recipeKeys.length}`);
+    errors++;
+  }
+  for (const [rKey, r] of Object.entries(recipes)) {
+    if (r.id !== rKey) {
+      console.error(`❌ recipe key mismatch: "${rKey}" vs id "${r.id}"`);
+      errors++;
+    }
+    if (!Array.isArray(r.sequence) || r.sequence.length !== 3) {
+      console.error(`❌ recipe "${rKey}" must have sequence of exactly 3 elements`);
+      errors++;
+    }
+    if (!r.feast || typeof r.feast.duration !== 'number') {
+      console.error(`❌ recipe "${rKey}" missing feast duration`);
+      errors++;
+    }
+    if (!r.whisper || typeof r.whisper !== 'string') {
+      console.error(`❌ recipe "${rKey}" missing whisper hint string`);
+      errors++;
+    }
+  }
+
   if (errors === 0) {
     console.log('✅ All Data JSON files PASSED validation successfully!');
     process.exit(0);

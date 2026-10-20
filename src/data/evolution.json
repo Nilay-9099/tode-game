@@ -10,5 +10,6 @@
     "spitFusion": 1,
     "killFusion": 1,
     "killSlam": 1
-  }
+  },
+  "chainWindowSeconds": 12.0
 }
