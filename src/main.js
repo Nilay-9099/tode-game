@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import './style.css';
 import { GAME_CONSTANTS } from './constants.js';
-import { eventBus } from './eventBus.js';
+import { eventBus, V3_EVENTS } from './eventBus.js';
 import { sounds } from './components/Audio.js';
 import { createCamera } from './components/Camera.js';
 import { createRenderer } from './components/Renderer.js';
@@ -87,6 +87,7 @@ async function init() {
 
   // 3. Dynamic Systems
   const particles = new ParticleSystem(scene);
+  const passivesManager = new PassivesManager(scene, particles);
   const atmosphere = new AtmosphereManager(scene, ambientLight, dirLight);
   const ui = new UIManager();
   const quality = new QualityManager(renderer, postFX);
@@ -162,7 +163,6 @@ async function init() {
   const bugManager = new BugManager(scene, particles);
   const tadpoleManager = new TadpoleManager(scene, particles);
   const enemyManager = new EnemyManager(scene, particles);
-  const passivesManager = new PassivesManager(scene, particles);
   const floatingText = new FloatingTextManager(gameCamera.camera);
 
   // 7. Game State
