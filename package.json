@@ -12,6 +12,7 @@
     "test:acceptance": "node tests/acceptance-v3.js"
   },
   "devDependencies": {
+    "gifenc": "^1.0.3",
     "vite": "^7.2.4"
   },
   "dependencies": {

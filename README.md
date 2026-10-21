@@ -5,6 +5,10 @@
 > **Engine:** Three.js (`^0.181.2`) • **Bundler:** Vite (`^7.2.4`) • **Audio:** Web Audio API Procedural Synthesis  
 > **Asset Policy:** 100% Royalty-Free Procedural 3D Geometry & Web Audio Synthesizers (Zero external 3D models or audio samples).
 
+<p align="center">
+  <img src="tode-gameplay.gif" alt="Tode Gameplay Demo" width="640" />
+</p>
+
 ---
 
 ## 🚀 Quick Start (How to Build & Run)
