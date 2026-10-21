@@ -74,12 +74,11 @@ export class TongueSystem {
     this.hitType = null;
 
     const pPos = player.group.position;
-    this.startPos.set(pPos.x, pPos.y, 8);
-
     const aimDir = player.getForwardVector
       ? player.getForwardVector()
       : new THREE.Vector2(-Math.sin(player.model.rotation.y), Math.cos(player.model.rotation.y)).normalize();
 
+    let shootDir = aimDir;
     let bestDist = this.range;
     let targetX = pPos.x + aimDir.x * this.range;
     let targetY = pPos.y + aimDir.y * this.range;
@@ -87,15 +86,19 @@ export class TongueSystem {
     // Optional direct aim point (e.g. from mouse click)
     if (optionalAimPoint) {
       const clickDist = Math.hypot(optionalAimPoint.x - pPos.x, optionalAimPoint.y - pPos.y);
+      if (clickDist > 0.01) {
+        shootDir = new THREE.Vector2(optionalAimPoint.x - pPos.x, optionalAimPoint.y - pPos.y).normalize();
+      }
       if (clickDist <= this.range) {
         targetX = optionalAimPoint.x;
         targetY = optionalAimPoint.y;
       } else {
-        const dir = new THREE.Vector2(optionalAimPoint.x - pPos.x, optionalAimPoint.y - pPos.y).normalize();
-        targetX = pPos.x + dir.x * this.range;
-        targetY = pPos.y + dir.y * this.range;
+        targetX = pPos.x + shootDir.x * this.range;
+        targetY = pPos.y + shootDir.y * this.range;
       }
     }
+
+    this.startPos.set(pPos.x + shootDir.x * 12, pPos.y + shootDir.y * 12, 12);
 
     // 1. Check for Flavor Bugs
     if (bugs && bugs.length > 0) {

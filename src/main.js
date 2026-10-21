@@ -496,6 +496,10 @@ async function init() {
 
   // 7b. Debug Bindings for QA Harness (Spec Section 4.12)
   if (window.__tode) {
+    window.__tode.player = player;
+    window.__tode.atmosphere = atmosphere;
+    window.__tode.tongue = tongue;
+    window.__tode.frogRig = frogRig;
     window.__tode.setWave = (n) => {
       wave = Math.max(0, parseInt(n, 10) - 1);
       startNextWave();
@@ -517,7 +521,7 @@ async function init() {
     };
     window.__tode.setPhase = (name) => {
       atmosphere.currentPhaseKey = String(name).toUpperCase();
-      atmosphere.setPhaseForWave(wave);
+      atmosphere.setPhaseForWave(wave, atmosphere.currentPhaseKey);
       console.log(`🌅 [Debug] Phase set to: ${name}`);
     };
     window.__tode.draftPerk = () => {

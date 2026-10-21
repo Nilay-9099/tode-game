@@ -11,12 +11,12 @@ export const ToyDioramaShader = {
   uniforms: {
     tDiffuse: { value: null },
     focusY: { value: 0.48 },
-    focusBand: { value: 0.22 },
-    blurStrength: { value: 0.0028 },
-    vignetteDarkness: { value: 0.65 },
-    warmGrade: { value: 0.055 },
-    saturation: { value: 1.14 },
-    contrast: { value: 1.07 },
+    focusBand: { value: 0.26 },
+    blurStrength: { value: 0.0016 },
+    vignetteDarkness: { value: 0.35 },
+    warmGrade: { value: 0.045 },
+    saturation: { value: 1.12 },
+    contrast: { value: 1.03 },
     resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
   },
   vertexShader: /* glsl */ `

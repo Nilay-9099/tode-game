@@ -14,22 +14,31 @@ export async function createPlayer() {
 
   const loader = new GLTFLoader();
   const gltf = await loader.loadAsync('/models/tode.glb');
-  const model = gltf.scene;
+  const gltfScene = gltf.scene;
 
-  // Align with Z-up coordinate system
-  model.rotation.x = Math.PI / 2;
+  // Orient gltf scene so frog's face aligns forward (local +Z rotates to face world +Y)
+  gltfScene.rotation.y = Math.PI;
+
   // Scaled up for heroic presence (Section 6.2)
-  model.scale.setScalar(GAME_CONSTANTS.PLAYER_SCALE);
+  const meshHolder = new THREE.Group();
+  meshHolder.scale.setScalar(GAME_CONSTANTS.PLAYER_SCALE);
+  meshHolder.add(gltfScene);
 
-  model.updateMatrixWorld(true);
-  const box = new THREE.Box3().setFromObject(model);
+  // Model group: animatable root for ClipPlayer (scale 1.0 base) and controller rotation
+  const model = new THREE.Group();
+  model.rotation.x = Math.PI / 2; // Align with Z-up coordinate system
+  model.scale.set(1, 1, 1);
+  model.add(meshHolder);
+
+  meshHolder.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(meshHolder);
   const modelBaseZ = -box.min.z;
   model.position.z = modelBaseZ;
   group.add(model);
 
   // 1. Two-Slot Belly Flavor Tint Orbs (Section 6.7)
   const bellyGroup = new THREE.Group();
-  bellyGroup.position.set(0, -6, 12); // Positioned on front belly
+  bellyGroup.position.set(0, 10, -8); // Positioned on front belly
 
   const orbGeo = new THREE.SphereGeometry(3.2, 12, 12);
   const bellyMat1 = new THREE.MeshPhongMaterial({
@@ -124,8 +133,8 @@ export async function createPlayer() {
 
     invulnerableTimer: 0,
     hitStopTimer: 0,
-    squashX: GAME_CONSTANTS.PLAYER_SCALE,
-    squashZ: GAME_CONSTANTS.PLAYER_SCALE,
+    squashX: 1,
+    squashZ: 1,
 
     addUltEnergy(amount) {
       const mult = perkManager?.modifiers?.ultGainMult || 1.0;
@@ -345,16 +354,6 @@ export async function createPlayer() {
       if (this.isMoving) {
         this.moveProgress += delta * this.moveSpeed;
 
-        // Squash and stretch during jump
-        const baseScale = GAME_CONSTANTS.PLAYER_SCALE;
-        if (this.moveProgress < 0.5) {
-          this.squashZ = THREE.MathUtils.lerp(baseScale, baseScale * 1.25, this.moveProgress * 2);
-          this.squashX = THREE.MathUtils.lerp(baseScale, baseScale * 0.85, this.moveProgress * 2);
-        } else {
-          this.squashZ = THREE.MathUtils.lerp(baseScale * 1.25, baseScale * 0.8, (this.moveProgress - 0.5) * 2);
-          this.squashX = THREE.MathUtils.lerp(baseScale * 0.85, baseScale * 1.15, (this.moveProgress - 0.5) * 2);
-        }
-
         if (this.moveProgress >= 1) {
           this.moveProgress = 1;
           this.group.position.x = this.moveTarget.x;
@@ -374,17 +373,11 @@ export async function createPlayer() {
           this.model.position.z = this.modelBaseZ + Math.sin(this.moveProgress * Math.PI) * this.jumpHeight;
         }
       } else {
-        const baseScale = GAME_CONSTANTS.PLAYER_SCALE;
-        this.squashX = THREE.MathUtils.lerp(this.squashX, baseScale, delta * 12);
-        this.squashZ = THREE.MathUtils.lerp(this.squashZ, baseScale, delta * 12);
-
         if (this.inputQueue.length > 0) {
           const nextDir = this.inputQueue.shift();
           this.startJump(nextDir, checkCollision);
         }
       }
-
-      this.model.scale.set(this.squashX, this.squashX, this.squashZ);
     },
 
     reset() {
@@ -405,8 +398,8 @@ export async function createPlayer() {
       this.model.rotation.y = 0;
       this.ultEnergy = 0;
       this.isMeteorSlamming = false;
-      this.squashX = GAME_CONSTANTS.PLAYER_SCALE;
-      this.squashZ = GAME_CONSTANTS.PLAYER_SCALE;
+      this.squashX = 1;
+      this.squashZ = 1;
     },
   };
 

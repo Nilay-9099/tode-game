@@ -43,7 +43,12 @@ export class EnemyManager {
     this.gnomeSkinMat = new THREE.MeshLambertMaterial({ color: 0xffcdb2 });
 
     // Beetle Materials
-    this.beetleShellMat = new THREE.MeshPhongMaterial({ color: 0x495057, shininess: 90 });
+    this.beetleShellMat = new THREE.MeshPhongMaterial({
+      color: 0x5a626a,
+      emissive: 0x1e2124,
+      emissiveIntensity: 0.3,
+      shininess: 90,
+    });
     this.beetleUnderMat = new THREE.MeshLambertMaterial({ color: 0x212529 });
 
     // Wasp Materials
@@ -57,13 +62,27 @@ export class EnemyManager {
     });
 
     // Crow Materials
-    this.crowFeatherMat = new THREE.MeshLambertMaterial({ color: 0x1d3557 });
+    this.crowFeatherMat = new THREE.MeshLambertMaterial({
+      color: 0x284b7a,
+      emissive: 0x14253d,
+      emissiveIntensity: 0.4,
+    });
     this.crowBeakMat = new THREE.MeshLambertMaterial({ color: 0xf4a261 });
     this.crowEyeMat = new THREE.MeshBasicMaterial({ color: 0x00f5d4 });
 
     // Boss Materials
-    this.bossBodyMat = new THREE.MeshPhongMaterial({ color: 0xd90429, shininess: 80 });
-    this.bossMetalMat = new THREE.MeshPhongMaterial({ color: 0x495057, shininess: 100 });
+    this.bossBodyMat = new THREE.MeshPhongMaterial({
+      color: 0xe6193c,
+      emissive: 0x590010,
+      emissiveIntensity: 0.45,
+      shininess: 80,
+    });
+    this.bossMetalMat = new THREE.MeshPhongMaterial({
+      color: 0x5a626a,
+      emissive: 0x1e2124,
+      emissiveIntensity: 0.25,
+      shininess: 100,
+    });
     this.bossFuelMat = new THREE.MeshBasicMaterial({ color: 0xffb703 });
 
     // 2. Shared Geometries

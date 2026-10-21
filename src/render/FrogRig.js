@@ -32,9 +32,13 @@ export class FrogRig {
     this.anchors.throat.position.set(0, 6, 12);
     this.anchors.tongueTip.position.set(0, 14, 13);
 
+    this.anchorGroup = new THREE.Group();
+    this.anchorGroup.name = 'frogRig_anchors';
+    this.root.add(this.anchorGroup);
+
     for (const [name, anchor] of Object.entries(this.anchors)) {
       anchor.name = `anchor_${name}`;
-      this.root.add(anchor);
+      this.anchorGroup.add(anchor);
     }
 
     // Animatable sub-targets for ClipPlayer and procedural tweens
@@ -254,6 +258,12 @@ export class FrogRig {
   }
 
   update(delta) {
+    if (this.mesh && this.anchorGroup) {
+      this.anchorGroup.rotation.z = this.mesh.rotation.y;
+      const baseZ = this.mesh.modelBaseZ || (this.mesh.parent?.modelBaseZ || 0);
+      this.anchorGroup.position.z = Math.max(0, this.mesh.position.z - baseZ);
+    }
+
     // Subtle rotation or breathing on attachments
     const t = performance.now() * 0.003;
     for (const att of this.attachments) {
