@@ -7,6 +7,42 @@
 
 ---
 
+## 🚀 Quick Start (How to Build & Run)
+
+### Prerequisites
+- **Node.js** (v18.0.0 or higher recommended)
+- **npm** (included with Node.js)
+
+### 1. Clone & Install
+```bash
+git clone <REPO_URL>
+cd tode
+npm install
+```
+
+### 2. Run the Game (Development Server)
+```bash
+npm run dev
+```
+Open your browser to: **`http://localhost:5173/`**
+
+### 3. Build & Preview (Production Mode)
+```bash
+# Compile minified, optimized production bundle to dist/
+npm run build
+
+# Preview production build locally
+npm run preview
+```
+
+### 4. Run Automated Test Suite
+```bash
+# Runs data validation and the full 23-criteria acceptance test suite
+npm test
+```
+
+---
+
 ## 🌟 1. Project Overview & Pitch
 
 **Tode and the Last Lilypad** is an isometric 3D action roguelite defense game. You play as **Tode**, an amphibious pond guardian defending 5 vulnerable tadpoles from greedy garden invaders: sneaky **Gnomes**, heavily shielded **Armored Beetles**, erratic dive-bombing **Wasps**, swooping **Crows**, and the climactic 3-phase **Lawn Mower King** boss.
