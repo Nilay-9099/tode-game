@@ -15,8 +15,8 @@
 
 ### 1. Clone & Install
 ```bash
-git clone <REPO_URL>
-cd tode
+git clone https://github.com/Nilay-9099/tode-game.git
+cd tode-game
 npm install
 ```
 
